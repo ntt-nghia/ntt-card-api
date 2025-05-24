@@ -1,7 +1,7 @@
-const { auth } = require('../config/firebase');
+const {auth} = require('../config/firebase');
 const UserService = require('./userService');
-const { createUserData } = require('../models/User');
-const { AppError } = require('../utils/errorHandler');
+const {createUserData} = require('../models/User');
+const {AppError} = require('../utils/errorHandler');
 const logger = require('../utils/logger');
 
 class AuthService {
@@ -10,9 +10,10 @@ class AuthService {
   }
 
   async registerUser(userData) {
+    let firebaseUser = null;
+
     try {
-      // Create Firebase user first
-      const firebaseUser = await auth.createUser({
+      firebaseUser = await auth.createUser({
         email: userData.email,
         password: userData.password,
         displayName: userData.displayName,
@@ -21,7 +22,6 @@ class AuthService {
 
       logger.info(`Firebase user created with UID: ${firebaseUser.uid}`);
 
-      // Create user profile data with proper structure
       const userProfileData = createUserData(firebaseUser, {
         birthDate: userData.birthDate,
         avatar: userData.avatar || ''
@@ -33,10 +33,8 @@ class AuthService {
         displayName: userProfileData.displayName
       });
 
-      // Save user profile in Firestore
       const user = await this.userService.createUser(userProfileData);
 
-      // Generate custom token for immediate login
       const customToken = await auth.createCustomToken(firebaseUser.uid);
 
       return {
@@ -47,11 +45,13 @@ class AuthService {
     } catch (error) {
       logger.error('Registration error:', error);
 
-      // If Firestore creation fails, clean up Firebase user
-      if (error.message.includes('Validation error') && error.statusCode === 400) {
+      if (firebaseUser && (
+        (error.message.includes('Validation error') && error.statusCode === 400) ||
+        (error instanceof AppError && error.statusCode >= 400)
+      )) {
         try {
           await auth.deleteUser(firebaseUser?.uid);
-          logger.info('Cleaned up Firebase user after validation failure');
+          logger.info('Cleaned up Firebase user after profile creation failure');
         } catch (cleanupError) {
           logger.error('Failed to cleanup Firebase user:', cleanupError);
         }
@@ -107,7 +107,7 @@ class AuthService {
   async resetPassword(email) {
     try {
       await auth.generatePasswordResetLink(email);
-      return { message: 'Password reset email sent' };
+      return {message: 'Password reset email sent'};
     } catch (error) {
       logger.error('Password reset error:', error);
 
@@ -121,8 +121,8 @@ class AuthService {
 
   async setAdminClaim(uid) {
     try {
-      await auth.setCustomUserClaims(uid, { admin: true });
-      return { message: 'Admin privileges granted' };
+      await auth.setCustomUserClaims(uid, {admin: true});
+      return {message: 'Admin privileges granted'};
     } catch (error) {
       logger.error('Set admin claim error:', error);
       throw new AppError('Failed to set admin privileges', 500);
@@ -131,8 +131,8 @@ class AuthService {
 
   async revokeAdminClaim(uid) {
     try {
-      await auth.setCustomUserClaims(uid, { admin: false });
-      return { message: 'Admin privileges revoked' };
+      await auth.setCustomUserClaims(uid, {admin: false});
+      return {message: 'Admin privileges revoked'};
     } catch (error) {
       logger.error('Revoke admin claim error:', error);
       throw new AppError('Failed to revoke admin privileges', 500);
@@ -147,7 +147,7 @@ class AuthService {
       // Delete from Firestore
       await this.userService.deleteUser(uid);
 
-      return { message: 'User deleted successfully' };
+      return {message: 'User deleted successfully'};
     } catch (error) {
       logger.error('Delete user error:', error);
       throw new AppError('Failed to delete user', 500);
