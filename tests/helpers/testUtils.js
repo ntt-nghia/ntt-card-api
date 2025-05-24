@@ -1,5 +1,5 @@
 // tests/helpers/testUtils.js (Fixed version)
-const { mockUser, mockFirebaseUser } = require('./mockData');
+const {mockFirebaseUser } = require('./mockData');
 
 class TestUtils {
   static resetAllMocks() {

@@ -76,8 +76,7 @@ class AuthService {
 
   async verifyToken(idToken) {
     try {
-      const decodedToken = await auth.verifyIdToken(idToken);
-      return decodedToken;
+      return await auth.verifyIdToken(idToken);
     } catch (error) {
       logger.error('Token verification error:', error);
       throw new AppError('Invalid token', 401);
@@ -96,8 +95,7 @@ class AuthService {
 
   async refreshToken(uid) {
     try {
-      const customToken = await auth.createCustomToken(uid);
-      return customToken;
+      return await auth.createCustomToken(uid);
     } catch (error) {
       logger.error('Token refresh error:', error);
       throw new AppError('Failed to refresh token', 500);

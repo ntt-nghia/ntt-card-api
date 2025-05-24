@@ -1,6 +1,5 @@
 // tests/services/authService.test.js (Completely Fixed)
 const AuthService = require('../../src/services/authService');
-const UserService = require('../../src/services/userService');
 const { AppError } = require('../../src/utils/errorHandler');
 const TestUtils = require('../helpers/testUtils');
 const { mockUser, mockFirebaseUser } = require('../helpers/mockData');
