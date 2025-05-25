@@ -1,11 +1,19 @@
 // tests/helpers/testUtils.js (Fixed version)
-const {mockFirebaseUser } = require('./mockData');
+const { mockFirebaseUser, mockUser, mockGameData } = require('./mockData');
 
 class TestUtils {
   static resetAllMocks() {
     // Reset specific mocks directly
     if (global.mockFirebaseAuth) {
       Object.values(global.mockFirebaseAuth).forEach(mockFn => {
+        if (typeof mockFn.mockReset === 'function') {
+          mockFn.mockReset();
+        }
+      });
+    }
+
+    if (global.mockUserRepository) {
+      Object.values(global.mockUserRepository).forEach(mockFn => {
         if (typeof mockFn.mockReset === 'function') {
           mockFn.mockReset();
         }
@@ -35,6 +43,26 @@ class TestUtils {
     );
   }
 
+  // UserRepository mock helpers
+  static mockUserRepositorySuccess() {
+    global.mockUserRepository.create.mockResolvedValue(mockUser);
+    global.mockUserRepository.findById.mockResolvedValue(mockUser);
+    global.mockUserRepository.findByEmail.mockResolvedValue(mockUser);
+    global.mockUserRepository.update.mockResolvedValue(mockUser);
+    global.mockUserRepository.updateLastLogin.mockResolvedValue();
+    global.mockUserRepository.updateStatistics.mockResolvedValue();
+    global.mockUserRepository.delete.mockResolvedValue();
+  }
+
+  static mockUserRepositoryNotFound() {
+    global.mockUserRepository.findById.mockResolvedValue(null);
+    global.mockUserRepository.findByEmail.mockResolvedValue(null);
+  }
+
+  static mockUserRepositoryError(method, error) {
+    global.mockUserRepository[method].mockRejectedValue(error);
+  }
+
   static createValidUserData() {
     return {
       email: 'test@example.com',
@@ -51,6 +79,29 @@ class TestUtils {
       password: '123', // Too short
       displayName: '',
       birthDate: new Date('2010-01-01') // Too young
+    };
+  }
+
+  static createValidUpdateData() {
+    return {
+      displayName: 'Updated User',
+      avatar: 'https://example.com/new-avatar.jpg'
+    };
+  }
+
+  static createValidPreferences() {
+    return {
+      relationshipTypes: ['friends', 'colleagues'],
+      contentFilters: { nsfw: false },
+      drinkingIntensity: 'light'
+    };
+  }
+
+  static createValidGameData() {
+    return {
+      relationshipType: 'friends',
+      connectionLevel: 3,
+      sessionDuration: 1800000
     };
   }
 }

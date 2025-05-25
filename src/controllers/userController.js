@@ -1,5 +1,5 @@
 const UserService = require('../services/userService');
-const { AppError } = require('../utils/errorHandler');
+const { AppError } = require('../middleware/errorHandler');
 
 class UserController {
   constructor() {

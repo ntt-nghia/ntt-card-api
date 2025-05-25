@@ -32,6 +32,21 @@ jest.mock('firebase-admin', () => ({
   apps: []
 }));
 
+// Mock UserRepository
+let mockUserRepository = {
+  create: jest.fn(),
+  findById: jest.fn(),
+  findByEmail: jest.fn(),
+  update: jest.fn(),
+  updateLastLogin: jest.fn(),
+  updateStatistics: jest.fn(),
+  delete: jest.fn()
+};
+
+jest.mock('../src/repositories/userRepository', () => {
+  return jest.fn().mockImplementation(() => mockUserRepository);
+});
+
 // Mock UserService module completely
 jest.mock('../src/services/userService', () => {
   return jest.fn().mockImplementation(() => ({
@@ -64,3 +79,4 @@ jest.setTimeout(10000);
 // Export mocks for use in tests
 global.mockFirebaseAuth = mockFirebaseAuth;
 global.mockFirestore = mockFirestore;
+global.mockUserRepository = mockUserRepository;

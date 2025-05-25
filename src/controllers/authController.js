@@ -1,6 +1,6 @@
 const AuthService = require('../services/authService');
 const UserService = require('../services/userService');
-const { AppError } = require('../utils/errorHandler');
+const { AppError } = require('../middleware/errorHandler');
 const logger = require('../utils/logger');
 
 class AuthController {

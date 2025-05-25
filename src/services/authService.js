@@ -1,7 +1,7 @@
 const {auth} = require('../config/firebase');
 const UserService = require('./userService');
 const {createUserData} = require('../models/User');
-const {AppError} = require('../utils/errorHandler');
+const {AppError} = require('../middleware/errorHandler');
 const logger = require('../utils/logger');
 
 class AuthService {

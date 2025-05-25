@@ -26,6 +26,35 @@ const mockFirebaseUser = {
   photoURL: 'https://example.com/avatar.jpg'
 };
 
+const mockUserWithStats = {
+  ...mockUser,
+  statistics: {
+    gamesPlayed: 5,
+    connectionLevelsReached: {
+      'friends': 3,
+      'new_couples': 2
+    },
+    favoriteRelationshipType: 'friends'
+  }
+};
+
+const mockUpdatedUser = {
+  ...mockUser,
+  displayName: 'Updated Test User',
+  avatar: 'https://example.com/new-avatar.jpg',
+  preferences: {
+    relationshipTypes: ['friends', 'colleagues'],
+    contentFilters: { nsfw: false },
+    drinkingIntensity: 'light'
+  }
+};
+
+const mockGameData = {
+  relationshipType: 'friends',
+  connectionLevel: 3,
+  sessionDuration: 1800000 // 30 minutes
+};
+
 const mockCard = {
   id: 'card-123',
   content: 'What is your favorite memory?',
@@ -81,6 +110,9 @@ const mockGameSession = {
 module.exports = {
   mockUser,
   mockFirebaseUser,
+  mockUserWithStats,
+  mockUpdatedUser,
+  mockGameData,
   mockCard,
   mockGameSession
 };

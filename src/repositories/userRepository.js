@@ -1,5 +1,5 @@
 const { db } = require('../config/firebase');
-const { AppError } = require('../utils/errorHandler');
+const { AppError } = require('../middleware/errorHandler');
 const logger = require('../utils/logger');
 
 class UserRepository {
@@ -9,12 +9,11 @@ class UserRepository {
 
   async create(userData) {
     try {
-      const docRef = await this.collection.doc(userData.uid).set({
+      await this.collection.doc(userData.uid).set({
         ...userData,
         createdAt: new Date(),
         updatedAt: new Date()
       });
-
       return await this.findById(userData.uid);
     } catch (error) {
       logger.error('Error creating user:', error);

@@ -1,5 +1,5 @@
 const { auth } = require('../config/firebase');
-const { AppError } = require('../utils/errorHandler');
+const { AppError } = require('./errorHandler');
 const logger = require('../utils/logger');
 
 const authenticateUser = async (req, res, next) => {

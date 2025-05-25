@@ -1,6 +1,6 @@
 const UserRepository = require('../repositories/userRepository');
 const { validateUser } = require('../models/User');
-const { AppError } = require('../utils/errorHandler');
+const { AppError } = require('../middleware/errorHandler');
 const logger = require('../utils/logger');
 
 class UserService {
@@ -10,7 +10,10 @@ class UserService {
 
   async createUser(userData) {
     // Validate user data
-    const { error, value } = validateUser(userData);
+    const {
+      error,
+      value
+    } = validateUser(userData);
     if (error) {
       logger.error('User validation error:', error.details);
       throw new AppError(`Validation error: ${error.details[0].message}`, 400);
@@ -27,6 +30,9 @@ class UserService {
   }
 
   async getUserById(uid) {
+    if (!uid) {
+      throw new AppError('Id is invalid', 400);
+    }
     const user = await this.userRepository.findById(uid);
     if (!user) {
       throw new AppError('User not found', 404);
@@ -35,6 +41,9 @@ class UserService {
   }
 
   async getUserByEmail(email) {
+    if (!email) {
+      throw new AppError('Email is invalid', 400);
+    }
     return await this.userRepository.findByEmail(email);
   }
 
@@ -78,19 +87,15 @@ class UserService {
       }
     };
 
-    // Update favorite relationship type only if there are games played
-    const relationshipCounts = {};
-    Object.keys(statistics.connectionLevelsReached).forEach(type => {
-      relationshipCounts[type] = (relationshipCounts[type] || 0) + 1;
-    });
-
-    if (Object.keys(relationshipCounts).length > 0) {
-      const favoriteType = Object.keys(relationshipCounts).reduce((a, b) =>
-        relationshipCounts[a] > relationshipCounts[b] ? a : b
-      );
-      statistics.favoriteRelationshipType = favoriteType;
+    // Fix: Remove the broken favorite calculation entirely
+    // Keep the existing favorite unless it's the first game
+    if (!currentStats.favoriteRelationshipType) {
+      // First game ever - set this relationship type as favorite
+      statistics.favoriteRelationshipType = gameData.relationshipType;
     } else {
-      statistics.favoriteRelationshipType = null;
+      // Keep the existing favorite - don't change it based on single games
+      // This prevents the erratic behavior of the original code
+      statistics.favoriteRelationshipType = currentStats.favoriteRelationshipType;
     }
 
     await this.userRepository.updateStatistics(uid, statistics);

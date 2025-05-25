@@ -56,5 +56,6 @@ module.exports = {
   registerSchema,
   loginSchema,
   updateProfileSchema,
-  createGameSessionSchema
+  createGameSessionSchema,
+  maxBirthDate
 };

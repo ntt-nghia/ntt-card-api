@@ -1,11 +1,12 @@
 const Joi = require('joi');
+const { maxBirthDate } = require('../utils/validators');
 
 const UserSchema = Joi.object({
   uid: Joi.string().required(),
   email: Joi.string().email().required(),
   displayName: Joi.string().min(1).max(50).required(),
   avatar: Joi.string().uri().optional().allow(''),
-  birthDate: Joi.date().max('now').required(),
+  birthDate: Joi.date().max(maxBirthDate).required(),
   preferences: Joi.object({
     relationshipTypes: Joi.array().items(
       Joi.string().valid('friends', 'colleagues', 'new_couples', 'established_couples', 'family')
