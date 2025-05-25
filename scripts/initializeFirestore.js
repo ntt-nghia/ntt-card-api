@@ -12,38 +12,41 @@ async function initializeDatabase() {
     // Create initial card content for testing
     const initialCards = [
       {
-        content: "What's the most spontaneous thing you've ever done?",
-        type: "question",
+        content: 'What\'s the most spontaneous thing you\'ve ever done?',
+        type: 'question',
         connectionLevel: 1,
-        relationshipTypes: ["friends"],
-        categories: ["spontaneity", "experiences"],
+        relationshipTypes: ['friends'],
+        categories: ['spontaneity', 'experiences'],
         metadata: {
-          estimatedResponseTime: 60,
-          drinkingConsequence: { onComplete: 0, onSkip: 1 }
+          estimatedResponseTime: 60
         },
-        status: "active",
-        createdBy: "system",
+        status: 'active',
+        createdBy: 'system',
         createdAt: admin.firestore.FieldValue.serverTimestamp()
       },
       {
-        content: "Share a childhood memory that still makes you smile",
-        type: "question",
+        content: 'Share a childhood memory that still makes you smile',
+        type: 'question',
         connectionLevel: 2,
-        relationshipTypes: ["friends", "family"],
-        categories: ["childhood", "memories"],
+        relationshipTypes: ['friends', 'family'],
+        categories: ['childhood', 'memories'],
         metadata: {
           estimatedResponseTime: 120,
-          drinkingConsequence: { onComplete: 0, onSkip: 1 }
+          drinkingConsequence: {
+            onComplete: 0,
+            onSkip: 1
+          }
         },
-        status: "active",
-        createdBy: "system",
+        status: 'active',
+        createdBy: 'system',
         createdAt: admin.firestore.FieldValue.serverTimestamp()
       }
     ];
 
     // Add initial cards
     for (const card of initialCards) {
-      await db.collection('cards').add(card);
+      await db.collection('cards')
+        .add(card);
     }
 
     console.log('✅ Database initialized successfully');

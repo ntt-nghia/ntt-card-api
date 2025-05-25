@@ -11,10 +11,6 @@ const CardSchema = Joi.object({
   categories: Joi.array().items(Joi.string()).default([]),
   metadata: Joi.object({
     estimatedResponseTime: Joi.number().integer().min(30).max(600).default(120), // seconds
-    drinkingConsequence: Joi.object({
-      onComplete: Joi.number().integer().min(0).max(3).default(0),
-      onSkip: Joi.number().integer().min(0).max(3).default(1)
-    }).default({}),
     completionCriteria: Joi.string().default('verbal_response')
   }).default({}),
   statistics: Joi.object({

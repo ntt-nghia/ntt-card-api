@@ -12,7 +12,6 @@ const UserSchema = Joi.object({
       Joi.string().valid('friends', 'colleagues', 'new_couples', 'established_couples', 'family')
     ).default([]),
     contentFilters: Joi.object().default({}),
-    drinkingIntensity: Joi.string().valid('light', 'moderate', 'focus').default('moderate')
   }).default({}),
   statistics: Joi.object({
     gamesPlayed: Joi.number().integer().min(0).default(0),
@@ -40,7 +39,6 @@ const createUserData = (firebaseUser, additionalData = {}) => {
     preferences: {
       relationshipTypes: [],
       contentFilters: {},
-      drinkingIntensity: 'moderate',
       ...additionalData.preferences
     },
     statistics: {

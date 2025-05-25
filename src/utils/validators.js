@@ -28,7 +28,6 @@ const updateProfileSchema = Joi.object({
       Joi.string().valid('friends', 'colleagues', 'new_couples', 'established_couples', 'family')
     ).optional(),
     contentFilters: Joi.object().optional(),
-    drinkingIntensity: Joi.string().valid('light', 'moderate', 'focus').optional()
   }).optional()
 });
 
@@ -46,7 +45,6 @@ const createGameSessionSchema = Joi.object({
     .required(),
   configuration: Joi.object({
     contentFilters: Joi.object().optional(),
-    drinkingIntensity: Joi.string().valid('light', 'moderate', 'focus').default('moderate'),
     maxDuration: Joi.number().min(300000).max(7200000).optional(),
     winCondition: Joi.string().valid('first_to_level_4', 'highest_points', 'collaborative').default('first_to_level_4')
   }).optional()

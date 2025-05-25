@@ -11,9 +11,7 @@ const authenticateUser = async (req, res, next) => {
     }
 
     const token = authHeader.split(' ')[1];
-    const decodedToken = await auth.verifyIdToken(token);
-
-    req.user = decodedToken;
+    req.user = await auth.verifyIdToken(token);
     next();
   } catch (error) {
     logger.error('Authentication error:', error);
@@ -55,8 +53,7 @@ const optionalAuth = async (req, res, next) => {
 
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
-      const decodedToken = await auth.verifyIdToken(token);
-      req.user = decodedToken;
+      req.user = await auth.verifyIdToken(token);
     }
 
     next();

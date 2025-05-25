@@ -37,8 +37,7 @@ describe('UserService', () => {
           avatar: 'https://example.com/avatar.jpg',
           preferences: {
             relationshipTypes: ['friends'],
-            contentFilters: {},
-            drinkingIntensity: 'moderate'
+            contentFilters: {}
           },
           statistics: {
             gamesPlayed: 0,
@@ -54,11 +53,14 @@ describe('UserService', () => {
         const result = await userService.createUser(userData);
 
         // Assert
-        expect(global.mockUserRepository.findById).toHaveBeenCalledWith(userData.uid);
-        expect(global.mockUserRepository.create).toHaveBeenCalledWith(expect.objectContaining({
-          ...userData,
-        }));
-        expect(result).toEqual(mockUser);
+        expect(global.mockUserRepository.findById)
+          .toHaveBeenCalledWith(userData.uid);
+        expect(global.mockUserRepository.create)
+          .toHaveBeenCalledWith(expect.objectContaining({
+            ...userData
+          }));
+        expect(result)
+          .toEqual(mockUser);
       });
 
       test('should create user with minimal valid data', async () => {
@@ -77,7 +79,8 @@ describe('UserService', () => {
         const result = await userService.createUser(minimalUserData);
 
         // Assert
-        expect(result).toEqual(mockUser);
+        expect(result)
+          .toEqual(mockUser);
       });
     });
 
@@ -92,14 +95,18 @@ describe('UserService', () => {
         };
 
         // Act & Assert
-        await expect(userService.createUser(invalidUserData)).rejects.toThrow(
-          expect.objectContaining({
-            statusCode: 400,
-            message: expect.stringContaining('Validation error')
-          })
-        );
+        await expect(userService.createUser(invalidUserData))
+          .rejects
+          .toThrow(
+            expect.objectContaining({
+              statusCode: 400,
+              message: expect.stringContaining('Validation error')
+            })
+          );
 
-        expect(global.mockUserRepository.create).not.toHaveBeenCalled();
+        expect(global.mockUserRepository.create)
+          .not
+          .toHaveBeenCalled();
       });
 
       test('should throw validation error for missing required fields', async () => {
@@ -111,12 +118,14 @@ describe('UserService', () => {
         };
 
         // Act & Assert
-        await expect(userService.createUser(incompleteUserData)).rejects.toThrow(
-          expect.objectContaining({
-            statusCode: 400,
-            message: expect.stringContaining('Validation error')
-          })
-        );
+        await expect(userService.createUser(incompleteUserData))
+          .rejects
+          .toThrow(
+            expect.objectContaining({
+              statusCode: 400,
+              message: expect.stringContaining('Validation error')
+            })
+          );
       });
 
       test('should throw validation error for underage user', async () => {
@@ -129,12 +138,14 @@ describe('UserService', () => {
         };
 
         // Act & Assert
-        await expect(userService.createUser(underageUserData)).rejects.toThrow(
-          expect.objectContaining({
-            statusCode: 400,
-            message: expect.stringContaining('Validation error')
-          })
-        );
+        await expect(userService.createUser(underageUserData))
+          .rejects
+          .toThrow(
+            expect.objectContaining({
+              statusCode: 400,
+              message: expect.stringContaining('Validation error')
+            })
+          );
       });
     });
 
@@ -146,11 +157,15 @@ describe('UserService', () => {
         global.mockUserRepository.findById.mockResolvedValue(mockUser); // User exists
 
         // Act & Assert
-        await expect(userService.createUser(userData)).rejects.toThrow(
-          new AppError('User already exists', 409)
-        );
+        await expect(userService.createUser(userData))
+          .rejects
+          .toThrow(
+            new AppError('User already exists', 409)
+          );
 
-        expect(global.mockUserRepository.create).not.toHaveBeenCalled();
+        expect(global.mockUserRepository.create)
+          .not
+          .toHaveBeenCalled();
       });
     });
 
@@ -168,7 +183,9 @@ describe('UserService', () => {
         TestUtils.mockUserRepositoryError('create', new Error('Database error'));
 
         // Act & Assert
-        await expect(userService.createUser(userData)).rejects.toThrow('Database error');
+        await expect(userService.createUser(userData))
+          .rejects
+          .toThrow('Database error');
       });
     });
   });
@@ -183,8 +200,10 @@ describe('UserService', () => {
       const result = await userService.getUserById(uid);
 
       // Assert
-      expect(global.mockUserRepository.findById).toHaveBeenCalledWith(uid);
-      expect(result).toEqual(mockUser);
+      expect(global.mockUserRepository.findById)
+        .toHaveBeenCalledWith(uid);
+      expect(result)
+        .toEqual(mockUser);
     });
 
     test('should throw error when user not found', async () => {
@@ -193,9 +212,11 @@ describe('UserService', () => {
       global.mockUserRepository.findById.mockResolvedValue(null);
 
       // Act & Assert
-      await expect(userService.getUserById(uid)).rejects.toThrow(
-        new AppError('User not found', 404)
-      );
+      await expect(userService.getUserById(uid))
+        .rejects
+        .toThrow(
+          new AppError('User not found', 404)
+        );
     });
 
     test('should handle repository errors', async () => {
@@ -204,7 +225,9 @@ describe('UserService', () => {
       TestUtils.mockUserRepositoryError('findById', new Error('Database connection failed'));
 
       // Act & Assert
-      await expect(userService.getUserById(uid)).rejects.toThrow('Database connection failed');
+      await expect(userService.getUserById(uid))
+        .rejects
+        .toThrow('Database connection failed');
     });
   });
 
@@ -218,8 +241,10 @@ describe('UserService', () => {
       const result = await userService.getUserByEmail(email);
 
       // Assert
-      expect(global.mockUserRepository.findByEmail).toHaveBeenCalledWith(email);
-      expect(result).toEqual(mockUser);
+      expect(global.mockUserRepository.findByEmail)
+        .toHaveBeenCalledWith(email);
+      expect(result)
+        .toEqual(mockUser);
     });
 
     test('should return null when user not found by email', async () => {
@@ -231,7 +256,8 @@ describe('UserService', () => {
       const result = await userService.getUserByEmail(email);
 
       // Assert
-      expect(result).toBeNull();
+      expect(result)
+        .toBeNull();
     });
   });
 
@@ -246,8 +272,10 @@ describe('UserService', () => {
       const result = await userService.updateUser(uid, updateData);
 
       // Assert
-      expect(global.mockUserRepository.update).toHaveBeenCalledWith(uid, updateData);
-      expect(result).toEqual(mockUpdatedUser);
+      expect(global.mockUserRepository.update)
+        .toHaveBeenCalledWith(uid, updateData);
+      expect(result)
+        .toEqual(mockUpdatedUser);
     });
 
     test('should handle email uniqueness validation', async () => {
@@ -256,15 +284,22 @@ describe('UserService', () => {
       const updateData = { email: 'existing@example.com' };
 
       // Mock existing user with different uid
-      const existingUser = { ...mockUser, uid: 'different-uid' };
+      const existingUser = {
+        ...mockUser,
+        uid: 'different-uid'
+      };
       global.mockUserRepository.findByEmail.mockResolvedValue(existingUser);
 
       // Act & Assert
-      await expect(userService.updateUser(uid, updateData)).rejects.toThrow(
-        new AppError('Email already in use by another user', 409)
-      );
+      await expect(userService.updateUser(uid, updateData))
+        .rejects
+        .toThrow(
+          new AppError('Email already in use by another user', 409)
+        );
 
-      expect(global.mockUserRepository.update).not.toHaveBeenCalled();
+      expect(global.mockUserRepository.update)
+        .not
+        .toHaveBeenCalled();
     });
 
     test('should allow email update for same user', async () => {
@@ -279,8 +314,10 @@ describe('UserService', () => {
       const result = await userService.updateUser(uid, updateData);
 
       // Assert
-      expect(global.mockUserRepository.update).toHaveBeenCalledWith(uid, updateData);
-      expect(result).toEqual(mockUpdatedUser);
+      expect(global.mockUserRepository.update)
+        .toHaveBeenCalledWith(uid, updateData);
+      expect(result)
+        .toEqual(mockUpdatedUser);
     });
 
     test('should handle repository update failure', async () => {
@@ -290,7 +327,9 @@ describe('UserService', () => {
       TestUtils.mockUserRepositoryError('update', new Error('Update failed'));
 
       // Act & Assert
-      await expect(userService.updateUser(uid, updateData)).rejects.toThrow('Update failed');
+      await expect(userService.updateUser(uid, updateData))
+        .rejects
+        .toThrow('Update failed');
     });
   });
 
@@ -309,30 +348,14 @@ describe('UserService', () => {
       const result = await userService.updateUserPreferences(uid, newPreferences);
 
       // Assert
-      expect(global.mockUserRepository.findById).toHaveBeenCalledWith(uid);
-      expect(global.mockUserRepository.update).toHaveBeenCalledWith(uid, {
-        preferences: { ...mockUser.preferences, ...newPreferences }
-      });
-      expect(result.preferences).toEqual(expect.objectContaining(newPreferences));
-    });
-
-    test('should merge preferences with existing ones', async () => {
-      // Arrange
-      const uid = 'firebase-uid-123';
-      const partialPreferences = { drinkingIntensity: 'light' };
-      global.mockUserRepository.findById.mockResolvedValue(mockUser);
-      global.mockUserRepository.update.mockResolvedValue(mockUser);
-
-      // Act
-      await userService.updateUserPreferences(uid, partialPreferences);
-
-      // Assert
-      expect(global.mockUserRepository.update).toHaveBeenCalledWith(uid, {
-        preferences: {
-          ...mockUser.preferences,
-          drinkingIntensity: 'light'
-        }
-      });
+      expect(global.mockUserRepository.findById)
+        .toHaveBeenCalledWith(uid);
+      expect(global.mockUserRepository.update)
+        .toHaveBeenCalledWith(uid, {
+          preferences: { ...mockUser.preferences, ...newPreferences }
+        });
+      expect(result.preferences)
+        .toEqual(expect.objectContaining(newPreferences));
     });
 
     test('should handle user not found', async () => {
@@ -342,11 +365,15 @@ describe('UserService', () => {
       global.mockUserRepository.findById.mockResolvedValue(null);
 
       // Act & Assert
-      await expect(userService.updateUserPreferences(uid, preferences)).rejects.toThrow(
-        new AppError('User not found', 404)
-      );
+      await expect(userService.updateUserPreferences(uid, preferences))
+        .rejects
+        .toThrow(
+          new AppError('User not found', 404)
+        );
 
-      expect(global.mockUserRepository.update).not.toHaveBeenCalled();
+      expect(global.mockUserRepository.update)
+        .not
+        .toHaveBeenCalled();
     });
   });
 
@@ -369,15 +396,21 @@ describe('UserService', () => {
       const result = await userService.recordGamePlayed(uid, gameData);
 
       // Assert
-      expect(global.mockUserRepository.findById).toHaveBeenCalledWith(uid);
-      expect(global.mockUserRepository.updateStatistics).toHaveBeenCalledWith(uid, expectedStatistics);
-      expect(result).toEqual(expectedStatistics);
+      expect(global.mockUserRepository.findById)
+        .toHaveBeenCalledWith(uid);
+      expect(global.mockUserRepository.updateStatistics)
+        .toHaveBeenCalledWith(uid, expectedStatistics);
+      expect(result)
+        .toEqual(expectedStatistics);
     });
 
     test('should update existing statistics correctly', async () => {
       // Arrange
       const uid = 'firebase-uid-123';
-      const gameData = { relationshipType: 'colleagues', connectionLevel: 2 };
+      const gameData = {
+        relationshipType: 'colleagues',
+        connectionLevel: 2
+      };
       global.mockUserRepository.findById.mockResolvedValue(mockUserWithStats);
 
       const expectedStatistics = {
@@ -394,33 +427,42 @@ describe('UserService', () => {
       const result = await userService.recordGamePlayed(uid, gameData);
 
       // Assert
-      expect(result).toEqual(expectedStatistics);
+      expect(result)
+        .toEqual(expectedStatistics);
     });
 
     test('should handle higher connection level for existing relationship', async () => {
       // Arrange
       const uid = 'firebase-uid-123';
-      const gameData = { relationshipType: 'friends', connectionLevel: 4 };
+      const gameData = {
+        relationshipType: 'friends',
+        connectionLevel: 4
+      };
       global.mockUserRepository.findById.mockResolvedValue(mockUserWithStats);
 
       // Act
       const result = await userService.recordGamePlayed(uid, gameData);
 
       // Assert
-      expect(result.connectionLevelsReached.friends).toBe(4); // Updated to higher level
+      expect(result.connectionLevelsReached.friends)
+        .toBe(4); // Updated to higher level
     });
 
     test('should not decrease connection level for existing relationship', async () => {
       // Arrange
       const uid = 'firebase-uid-123';
-      const gameData = { relationshipType: 'friends', connectionLevel: 1 };
+      const gameData = {
+        relationshipType: 'friends',
+        connectionLevel: 1
+      };
       global.mockUserRepository.findById.mockResolvedValue(mockUserWithStats);
 
       // Act
       const result = await userService.recordGamePlayed(uid, gameData);
 
       // Assert
-      expect(result.connectionLevelsReached.friends).toBe(3); // Kept at higher level
+      expect(result.connectionLevelsReached.friends)
+        .toBe(3); // Kept at higher level
     });
 
     test('should handle user not found', async () => {
@@ -430,9 +472,11 @@ describe('UserService', () => {
       global.mockUserRepository.findById.mockResolvedValue(null);
 
       // Act & Assert
-      await expect(userService.recordGamePlayed(uid, gameData)).rejects.toThrow(
-        new AppError('User not found', 404)
-      );
+      await expect(userService.recordGamePlayed(uid, gameData))
+        .rejects
+        .toThrow(
+          new AppError('User not found', 404)
+        );
     });
 
     test('should handle repository statistics update failure', async () => {
@@ -443,7 +487,9 @@ describe('UserService', () => {
       TestUtils.mockUserRepositoryError('updateStatistics', new Error('Statistics update failed'));
 
       // Act & Assert
-      await expect(userService.recordGamePlayed(uid, gameData)).rejects.toThrow('Statistics update failed');
+      await expect(userService.recordGamePlayed(uid, gameData))
+        .rejects
+        .toThrow('Statistics update failed');
     });
   });
 
@@ -456,7 +502,8 @@ describe('UserService', () => {
       await userService.updateLastLogin(uid);
 
       // Assert
-      expect(global.mockUserRepository.updateLastLogin).toHaveBeenCalledWith(uid);
+      expect(global.mockUserRepository.updateLastLogin)
+        .toHaveBeenCalledWith(uid);
     });
 
     test('should handle repository failure gracefully', async () => {
@@ -465,7 +512,9 @@ describe('UserService', () => {
       TestUtils.mockUserRepositoryError('updateLastLogin', new Error('Update failed'));
 
       // Act & Assert - Should not throw error
-      await expect(userService.updateLastLogin(uid)).rejects.toThrow();
+      await expect(userService.updateLastLogin(uid))
+        .rejects
+        .toThrow();
     });
   });
 
@@ -478,7 +527,8 @@ describe('UserService', () => {
       await userService.deleteUser(uid);
 
       // Assert
-      expect(global.mockUserRepository.delete).toHaveBeenCalledWith(uid);
+      expect(global.mockUserRepository.delete)
+        .toHaveBeenCalledWith(uid);
     });
 
     test('should handle repository deletion failure', async () => {
@@ -487,23 +537,37 @@ describe('UserService', () => {
       TestUtils.mockUserRepositoryError('delete', new Error('Deletion failed'));
 
       // Act & Assert
-      await expect(userService.deleteUser(uid)).rejects.toThrow('Deletion failed');
+      await expect(userService.deleteUser(uid))
+        .rejects
+        .toThrow('Deletion failed');
     });
   });
 
   describe('Edge Cases and Error Handling', () => {
     test('should handle null or undefined input gracefully', async () => {
       // Act & Assert
-      await expect(userService.createUser(null)).rejects.toThrow();
-      await expect(userService.createUser(undefined)).rejects.toThrow();
-      await expect(userService.getUserById(undefined)).rejects.toThrow();
-      await expect(userService.getUserById(null)).rejects.toThrow();
+      await expect(userService.createUser(null))
+        .rejects
+        .toThrow();
+      await expect(userService.createUser(undefined))
+        .rejects
+        .toThrow();
+      await expect(userService.getUserById(undefined))
+        .rejects
+        .toThrow();
+      await expect(userService.getUserById(null))
+        .rejects
+        .toThrow();
     });
 
     test('should handle empty string inputs', async () => {
       // Act & Assert
-      await expect(userService.getUserById('')).rejects.toThrow();
-      await expect(userService.getUserByEmail('')).rejects.toThrow();
+      await expect(userService.getUserById(''))
+        .rejects
+        .toThrow();
+      await expect(userService.getUserByEmail(''))
+        .rejects
+        .toThrow();
     });
 
     test('should handle malformed data gracefully', async () => {
@@ -517,12 +581,14 @@ describe('UserService', () => {
       };
 
       // Act & Assert
-      await expect(userService.createUser(malformedData)).rejects.toThrow(
-        expect.objectContaining({
-          statusCode: 400,
-          message: expect.stringContaining('Validation error')
-        })
-      );
+      await expect(userService.createUser(malformedData))
+        .rejects
+        .toThrow(
+          expect.objectContaining({
+            statusCode: 400,
+            message: expect.stringContaining('Validation error')
+          })
+        );
     });
   });
 });

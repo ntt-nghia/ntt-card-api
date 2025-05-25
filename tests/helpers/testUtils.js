@@ -93,7 +93,6 @@ class TestUtils {
     return {
       relationshipTypes: ['friends', 'colleagues'],
       contentFilters: { nsfw: false },
-      drinkingIntensity: 'light'
     };
   }
 

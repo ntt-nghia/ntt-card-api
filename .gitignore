@@ -56,3 +56,4 @@ Thumbs.db
 # Testing
 test-results/
 .env
+docs

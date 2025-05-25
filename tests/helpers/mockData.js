@@ -8,7 +8,6 @@ const mockUser = {
   preferences: {
     relationshipTypes: ['friends'],
     contentFilters: {},
-    drinkingIntensity: 'moderate'
   },
   statistics: {
     gamesPlayed: 0,
@@ -45,7 +44,6 @@ const mockUpdatedUser = {
   preferences: {
     relationshipTypes: ['friends', 'colleagues'],
     contentFilters: { nsfw: false },
-    drinkingIntensity: 'light'
   }
 };
 
@@ -64,7 +62,6 @@ const mockCard = {
   categories: ['memories'],
   metadata: {
     estimatedResponseTime: 60,
-    drinkingConsequence: { onComplete: 0, onSkip: 1 },
     completionCriteria: 'verbal_response'
   },
   statistics: {
@@ -94,7 +91,6 @@ const mockGameSession = {
   currentTurn: 'firebase-uid-123',
   configuration: {
     contentFilters: {},
-    drinkingIntensity: 'moderate',
     winCondition: 'first_to_level_4'
   },
   gameState: {
