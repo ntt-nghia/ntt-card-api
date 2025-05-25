@@ -6,17 +6,19 @@ const UserSchema = Joi.object({
   email: Joi.string().email().required(),
   displayName: Joi.string().min(1).max(50).required(),
   avatar: Joi.string().uri().optional().allow(''),
-  birthDate: Joi.date().max(maxBirthDate).required(),
+  role: Joi.string().valid('user', 'admin').default('user'),
+  birthDate: Joi.date().max(maxBirthDate).optional(),
   preferences: Joi.object({
     relationshipTypes: Joi.array().items(
       Joi.string().valid('friends', 'colleagues', 'new_couples', 'established_couples', 'family')
     ).default([]),
-    contentFilters: Joi.object().default({}),
+    contentFilters: Joi.object().default({})
   }).default({}),
   statistics: Joi.object({
-    gamesPlayed: Joi.number().integer().min(0).default(0),
-    connectionLevelsReached: Joi.object().default({}),
-    favoriteRelationshipType: Joi.string().optional().allow(null) // Allow null
+    totalSessions: Joi.number().integer().min(0).default(0),
+    relationshipTypeUsage: Joi.object().default({}),
+    averageSessionDuration: Joi.number().min(0).default(0),
+    favoriteRelationshipType: Joi.string().optional().allow(null)
   }).default({}),
   createdAt: Joi.date().default(() => new Date()),
   lastLoginAt: Joi.date().default(() => new Date())
@@ -44,7 +46,7 @@ const createUserData = (firebaseUser, additionalData = {}) => {
     statistics: {
       gamesPlayed: 0,
       connectionLevelsReached: {},
-      favoriteRelationshipType: null, // Explicitly set to null
+      favoriteRelationshipType: null,
       ...additionalData.statistics
     },
     createdAt: new Date(),

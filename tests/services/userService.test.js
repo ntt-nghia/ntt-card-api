@@ -39,10 +39,12 @@ describe('UserService', () => {
             relationshipTypes: ['friends'],
             contentFilters: {}
           },
+          role: "user",
           statistics: {
-            gamesPlayed: 0,
-            connectionLevelsReached: {},
-            favoriteRelationshipType: null
+            averageSessionDuration: 0,
+            relationshipTypeUsage: {},
+            favoriteRelationshipType: null,
+            totalSessions: 0
           }
         };
 
