@@ -1,7 +1,6 @@
 const { auth } = require('../config/firebase');
 const { AppError } = require('./errorHandler');
 const logger = require('../utils/logger');
-
 const authenticateUser = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -15,7 +14,9 @@ const authenticateUser = async (req, res, next) => {
     next();
   } catch (error) {
     logger.error('Authentication error:', error);
-
+    if (error.code === 'auth/argument-error') {
+      return next(new AppError('Token expired', 401));
+    }
     if (error.code === 'auth/id-token-expired') {
       return next(new AppError('Token expired', 401));
     }

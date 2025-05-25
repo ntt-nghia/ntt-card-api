@@ -74,15 +74,12 @@ class UserService {
     const user = await this.getUserById(uid);
     const currentStats = user.statistics || {};
 
-    // Update session count
     const totalSessions = (currentStats.totalSessions || 0) + 1;
 
-    // Update relationship type usage
     const relationshipUsage = currentStats.relationshipTypeUsage || {};
     relationshipUsage[sessionData.relationshipType] =
       (relationshipUsage[sessionData.relationshipType] || 0) + 1;
 
-    // Update average session duration
     const currentAvg = currentStats.averageSessionDuration || 0;
     const newAvg = ((currentAvg * (totalSessions - 1)) + sessionData.duration) / totalSessions;
 
@@ -90,11 +87,20 @@ class UserService {
       totalSessions,
       relationshipTypeUsage,
       averageSessionDuration: Math.round(newAvg),
-      favoriteRelationshipType: this.calculateFavoriteType(relationshipUsage)
+      favoriteRelationshipType: this.calculateFavoriteType(currentStats)
     };
 
     await this.userRepository.updateStatistics(uid, statistics);
     return statistics;
+  }
+
+  calculateFavoriteType(currentStats, sessionData) {
+    if (!currentStats.favoriteRelationshipType) {
+      return sessionData.relationshipType;
+    }
+    else {
+      return currentStats.favoriteRelationshipType;
+    }
   }
 
   async recordGamePlayed(uid, gameData) {
@@ -114,15 +120,10 @@ class UserService {
       }
     };
 
-    // Fix: Remove the broken favorite calculation entirely
-    // Keep the existing favorite unless it's the first game
     if (!currentStats.favoriteRelationshipType) {
-      // First game ever - set this relationship type as favorite
       statistics.favoriteRelationshipType = gameData.relationshipType;
     }
     else {
-      // Keep the existing favorite - don't change it based on single games
-      // This prevents the erratic behavior of the original code
       statistics.favoriteRelationshipType = currentStats.favoriteRelationshipType;
     }
 

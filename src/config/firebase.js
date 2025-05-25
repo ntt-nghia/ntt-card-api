@@ -1,7 +1,6 @@
 const admin = require('firebase-admin');
 const config = require('./index');
 const logger = require('../utils/logger');
-
 // Validate required Firebase configuration
 const requiredFirebaseConfig = [
   'FIREBASE_PROJECT_ID',
@@ -16,10 +15,10 @@ if (missingConfig.length > 0) {
 
 // Initialize Firebase Admin SDK
 const serviceAccount = {
-  type: "service_account",
+  type: 'service_account',
   project_id: config.firebase.projectId,
   private_key: config.firebase.privateKey,
-  client_email: config.firebase.clientEmail,
+  client_email: config.firebase.clientEmail
 };
 
 // Log configuration (without sensitive data) for debugging

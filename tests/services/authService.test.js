@@ -270,33 +270,6 @@ describe('AuthService', () => {
     });
   });
 
-  describe('refreshToken', () => {
-    test('should create new custom token for user', async () => {
-      // Arrange
-      const uid = 'user-123';
-      const customToken = 'new-custom-token';
-      global.mockFirebaseAuth.createCustomToken.mockResolvedValue(customToken);
-
-      // Act
-      const result = await authService.refreshToken(uid);
-
-      // Assert
-      expect(global.mockFirebaseAuth.createCustomToken).toHaveBeenCalledWith(uid);
-      expect(result).toBe(customToken);
-    });
-
-    test('should throw AppError when token creation fails', async () => {
-      // Arrange
-      const uid = 'user-123';
-      global.mockFirebaseAuth.createCustomToken.mockRejectedValue(new Error('Token creation failed'));
-
-      // Act & Assert
-      await expect(authService.refreshToken(uid)).rejects.toThrow(
-        new AppError('Failed to refresh token', 500)
-      );
-    });
-  });
-
   describe('resetPassword', () => {
     test('should send password reset email successfully', async () => {
       // Arrange
