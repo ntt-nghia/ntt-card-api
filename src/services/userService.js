@@ -70,6 +70,42 @@ class UserService {
     return await this.userRepository.update(uid, { preferences: updatedPreferences });
   }
 
+  // NEW: Update language preference
+  async updateLanguagePreference(uid, language) {
+    if (!['en', 'vn'].includes(language)) {
+      throw new AppError('Invalid language. Supported languages: en, vn', 400);
+    }
+
+    return await this.userRepository.updateLanguage(uid, language);
+  }
+
+  // NEW: Get user's unlocked decks
+  async getUserUnlockedDecks(uid) {
+    const user = await this.getUserById(uid);
+    return user.unlockedDecks || [];
+  }
+
+  // NEW: Add deck to user's unlocked decks
+  async unlockDeckForUser(uid, deckId, purchaseData = {}) {
+    const user = await this.getUserById(uid);
+
+    if (user.unlockedDecks?.includes(deckId)) {
+      throw new AppError('Deck already unlocked', 400);
+    }
+
+    await this.userRepository.addUnlockedDeck(uid, deckId);
+
+    if (purchaseData.amount !== undefined) {
+      await this.userRepository.addPurchaseHistory(uid, {
+        deckId,
+        ...purchaseData
+      });
+    }
+
+    return await this.getUserById(uid);
+  }
+
+  // UPDATED: Record session with deck information
   async recordSession(uid, sessionData) {
     const user = await this.getUserById(uid);
     const currentStats = user.statistics || {};
@@ -83,9 +119,21 @@ class UserService {
     const currentAvg = currentStats.averageSessionDuration || 0;
     const newAvg = ((currentAvg * (totalSessions - 1)) + sessionData.duration) / totalSessions;
 
+    // Calculate favorite relationship type
+    let favoriteType = sessionData.relationshipType;
+    let maxUsage = 1;
+
+    Object.entries(relationshipUsage).forEach(([type, usage]) => {
+      if (usage > maxUsage) {
+        favoriteType = type;
+        maxUsage = usage;
+      }
+    });
+
     const statistics = {
+      ...currentStats,
       totalSessions,
-      relationshipTypeUsage,
+      relationshipTypeUsage: relationshipUsage,
       averageSessionDuration: Math.round(newAvg),
       favoriteRelationshipType: this.calculateFavoriteType(currentStats)
     };
@@ -110,6 +158,7 @@ class UserService {
     const connectionLevels = currentStats.connectionLevelsReached || {};
 
     const statistics = {
+      ...currentStats,
       gamesPlayed: (currentStats.gamesPlayed || 0) + 1,
       connectionLevelsReached: {
         ...connectionLevels,
@@ -120,12 +169,19 @@ class UserService {
       }
     };
 
-    if (!currentStats.favoriteRelationshipType) {
-      statistics.favoriteRelationshipType = gameData.relationshipType;
-    }
-    else {
-      statistics.favoriteRelationshipType = currentStats.favoriteRelationshipType;
-    }
+    // Update favorite relationship type based on total usage
+    const relationshipUsage = currentStats.relationshipTypeUsage || {};
+    let favoriteType = gameData.relationshipType;
+    let maxUsage = relationshipUsage[gameData.relationshipType] || 0;
+
+    Object.entries(relationshipUsage).forEach(([type, usage]) => {
+      if (usage > maxUsage) {
+        favoriteType = type;
+        maxUsage = usage;
+      }
+    });
+
+    statistics.favoriteRelationshipType = favoriteType;
 
     await this.userRepository.updateStatistics(uid, statistics);
     return statistics;

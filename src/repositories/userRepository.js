@@ -95,6 +95,89 @@ class UserRepository {
     }
   }
 
+  // NEW: Update language preference
+  async updateLanguage(uid, language) {
+    try {
+      await this.collection.doc(uid).update({
+        language,
+        updatedAt: new Date()
+      });
+
+      return await this.findById(uid);
+    } catch (error) {
+      logger.error('Error updating user language:', error);
+      throw new AppError('Failed to update language preference', 500);
+    }
+  }
+
+  // NEW: Add unlocked deck
+  async addUnlockedDeck(uid, deckId) {
+    try {
+      const user = await this.findById(uid);
+      if (!user) {
+        throw new AppError('User not found', 404);
+      }
+
+      const unlockedDecks = user.unlockedDecks || [];
+      if (!unlockedDecks.includes(deckId)) {
+        unlockedDecks.push(deckId);
+
+        await this.collection.doc(uid).update({
+          unlockedDecks,
+          updatedAt: new Date()
+        });
+      }
+
+      return await this.findById(uid);
+    } catch (error) {
+      logger.error('Error adding unlocked deck:', error);
+      throw new AppError('Failed to unlock deck', 500);
+    }
+  }
+
+  // NEW: Add purchase history
+  async addPurchaseHistory(uid, purchaseData) {
+    try {
+      const user = await this.findById(uid);
+      if (!user) {
+        throw new AppError('User not found', 404);
+      }
+
+      const purchaseHistory = user.purchaseHistory || [];
+      purchaseHistory.push({
+        ...purchaseData,
+        purchaseDate: new Date()
+      });
+
+      await this.collection.doc(uid).update({
+        purchaseHistory,
+        updatedAt: new Date()
+      });
+
+      return await this.findById(uid);
+    } catch (error) {
+      logger.error('Error adding purchase history:', error);
+      throw new AppError('Failed to record purchase', 500);
+    }
+  }
+
+  // NEW: Get users by unlocked deck
+  async findByUnlockedDeck(deckId) {
+    try {
+      const snapshot = await this.collection
+        .where('unlockedDecks', 'array-contains', deckId)
+        .get();
+
+      return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    } catch (error) {
+      logger.error('Error finding users by deck:', error);
+      throw new AppError('Failed to retrieve users', 500);
+    }
+  }
+
   async delete(uid) {
     try {
       await this.collection.doc(uid).delete();
