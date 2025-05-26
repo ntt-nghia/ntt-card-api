@@ -7,7 +7,7 @@ const requiredEnvVars = [
   'FIREBASE_CLIENT_EMAIL'
 ];
 
-const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+const missingEnvVars = requiredEnvVars.filter((varName) => !process.env[varName]);
 if (missingEnvVars.length > 0) {
   console.error('❌ Missing required environment variables:', missingEnvVars);
   process.exit(1);

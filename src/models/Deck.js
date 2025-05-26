@@ -42,7 +42,8 @@ const DeckSchema = Joi.object({
   // Discovery and filtering
   tags: Joi.array().items(Joi.string()).default([]),
   difficulty: Joi.string().valid('beginner', 'intermediate', 'advanced').default('intermediate'),
-  estimatedDuration: Joi.number().integer().min(15).max(120).default(30), // minutes
+  estimatedDuration: Joi.number().integer().min(15).max(120)
+    .default(30), // minutes
 
   // Visual representation
   iconUrl: Joi.string().uri().optional(),
@@ -69,9 +70,7 @@ const DeckSchema = Joi.object({
   }).default({})
 });
 
-const validateDeck = (deckData) => {
-  return DeckSchema.validate(deckData);
-};
+const validateDeck = (deckData) => DeckSchema.validate(deckData);
 
 /**
  * Get deck text in specified language with fallback
@@ -91,9 +90,7 @@ const getDeckText = (deck, field, language = 'en') => {
  * @param {Array} unlockedDecks - User's unlocked deck IDs
  * @returns {boolean} Has access
  */
-const hasAccessToDeck = (deck, unlockedDecks = []) => {
-  return deck.type === 'FREE' || unlockedDecks.includes(deck.id);
-};
+const hasAccessToDeck = (deck, unlockedDecks = []) => deck.type === 'FREE' || unlockedDecks.includes(deck.id);
 
 module.exports = {
   DeckSchema,

@@ -1,9 +1,11 @@
 const UserService = require('../services/userService');
+const DeckService = require('../services/deckService');
 const { AppError } = require('../middleware/errorHandler');
 
 class UserController {
   constructor() {
     this.userService = new UserService();
+    this.deckService = new DeckService();
   }
 
   getProfile = async (req, res) => {
@@ -45,6 +47,59 @@ class UserController {
     });
   };
 
+  // NEW: Update language preference
+  updateLanguage = async (req, res) => {
+    const { language } = req.body;
+
+    if (!language) {
+      throw new AppError('Language is required', 400);
+    }
+
+    const updatedUser = await this.userService.updateLanguagePreference(req.user.uid, language);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        language: updatedUser.language,
+        message: 'Language preference updated successfully'
+      }
+    });
+  };
+
+  // NEW: Get user's unlocked decks
+  getUserDecks = async (req, res) => {
+    const { relationshipType } = req.query;
+
+    const filters = {};
+    if (relationshipType) filters.relationshipType = relationshipType;
+
+    const decks = this.deckService.getUserAvailableDecks(req.user.uid, filters);
+
+    // Filter to show only unlocked decks
+    const unlockedDecks = decks.filter(deck => deck.isUnlocked);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        count: unlockedDecks.length,
+        decks: unlockedDecks
+      }
+    });
+  };
+
+  // NEW: Get purchase history
+  getPurchaseHistory = async (req, res) => {
+    const user = await this.userService.getUserById(req.user.uid);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        purchases: user.purchaseHistory || [],
+        totalSpent: (user.purchaseHistory || []).reduce((sum, p) => sum + p.amount, 0)
+      }
+    });
+  };
+
   getStatistics = async (req, res) => {
     const user = await this.userService.getUserById(req.user.uid);
 
@@ -53,8 +108,10 @@ class UserController {
       data: {
         statistics: user.statistics,
         gamesPlayed: user.statistics.gamesPlayed || 0,
+        totalSessions: user.statistics.totalSessions || 0,
         connectionLevelsReached: user.statistics.connectionLevelsReached || {},
-        favoriteRelationshipType: user.statistics.favoriteRelationshipType
+        favoriteRelationshipType: user.statistics.favoriteRelationshipType,
+        averageSessionDuration: user.statistics.averageSessionDuration || 0
       }
     });
   };

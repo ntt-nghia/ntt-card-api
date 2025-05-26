@@ -14,7 +14,8 @@ const CardSchema = Joi.object({
   ).required(),
 
   type: Joi.string().valid('question', 'challenge', 'scenario', 'connection', 'wild').required(),
-  connectionLevel: Joi.number().integer().min(1).max(4).required(),
+  connectionLevel: Joi.number().integer().min(1).max(4)
+    .required(),
   relationshipTypes: Joi.array().items(
     Joi.string().valid('friends', 'colleagues', 'new_couples', 'established_couples', 'family')
   ).min(1).required(),

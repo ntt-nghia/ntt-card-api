@@ -41,42 +41,38 @@ const UserSchema = Joi.object({
   lastLoginAt: Joi.date().default(() => new Date())
 });
 
-const validateUser = (userData) => {
-  return UserSchema.validate(userData, {
-    allowUnknown: false,
-    stripUnknown: true
-  });
-};
+const validateUser = (userData) => UserSchema.validate(userData, {
+  allowUnknown: false,
+  stripUnknown: true
+});
 
-const createUserData = (firebaseUser, additionalData = {}) => {
-  return {
-    uid: firebaseUser.uid,
-    email: firebaseUser.email,
-    displayName: firebaseUser.displayName || additionalData.displayName,
-    avatar: firebaseUser.photoURL || additionalData.avatar || '',
-    birthDate: additionalData.birthDate,
-    language: additionalData.language || 'en',
-    unlockedDecks: [],
-    purchaseHistory: [],
-    preferences: {
-      relationshipTypes: [],
-      contentFilters: {},
-      ...additionalData.preferences
-    },
-    statistics: {
-      totalSessions: 0,
-      relationshipTypeUsage: {},
-      averageSessionDuration: 0,
-      favoriteRelationshipType: null,
-      // Legacy fields
-      gamesPlayed: 0,
-      connectionLevelsReached: {},
-      ...additionalData.statistics
-    },
-    createdAt: new Date(),
-    lastLoginAt: new Date()
-  };
-};
+const createUserData = (firebaseUser, additionalData = {}) => ({
+  uid: firebaseUser.uid,
+  email: firebaseUser.email,
+  displayName: firebaseUser.displayName || additionalData.displayName,
+  avatar: firebaseUser.photoURL || additionalData.avatar || '',
+  birthDate: additionalData.birthDate,
+  language: additionalData.language || 'en',
+  unlockedDecks: [],
+  purchaseHistory: [],
+  preferences: {
+    relationshipTypes: [],
+    contentFilters: {},
+    ...additionalData.preferences
+  },
+  statistics: {
+    totalSessions: 0,
+    relationshipTypeUsage: {},
+    averageSessionDuration: 0,
+    favoriteRelationshipType: null,
+    // Legacy fields
+    gamesPlayed: 0,
+    connectionLevelsReached: {},
+    ...additionalData.statistics
+  },
+  createdAt: new Date(),
+  lastLoginAt: new Date()
+});
 
 module.exports = {
   UserSchema,

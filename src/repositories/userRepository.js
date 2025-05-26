@@ -15,7 +15,8 @@ class UserRepository {
         updatedAt: new Date()
       });
       return await this.findById(userData.uid);
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error creating user:', error);
       throw new AppError('Failed to create user', 500);
     }
@@ -33,7 +34,8 @@ class UserRepository {
         id: doc.id,
         ...doc.data()
       };
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error finding user by ID:', error);
       throw new AppError('Failed to retrieve user', 500);
     }
@@ -52,7 +54,8 @@ class UserRepository {
         id: doc.id,
         ...doc.data()
       };
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error finding user by email:', error);
       throw new AppError('Failed to retrieve user', 500);
     }
@@ -66,7 +69,8 @@ class UserRepository {
       });
 
       return await this.findById(uid);
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error updating user:', error);
       throw new AppError('Failed to update user', 500);
     }
@@ -77,7 +81,8 @@ class UserRepository {
       await this.collection.doc(uid).update({
         lastLoginAt: new Date()
       });
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error updating last login:', error);
       // Don't throw error for this non-critical update
     }
@@ -86,10 +91,11 @@ class UserRepository {
   async updateStatistics(uid, statistics) {
     try {
       await this.collection.doc(uid).update({
-        'statistics': statistics,
+        statistics,
         updatedAt: new Date()
       });
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error updating user statistics:', error);
       throw new AppError('Failed to update user statistics', 500);
     }
@@ -104,7 +110,8 @@ class UserRepository {
       });
 
       return await this.findById(uid);
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error updating user language:', error);
       throw new AppError('Failed to update language preference', 500);
     }
@@ -129,7 +136,8 @@ class UserRepository {
       }
 
       return await this.findById(uid);
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error adding unlocked deck:', error);
       throw new AppError('Failed to unlock deck', 500);
     }
@@ -155,7 +163,8 @@ class UserRepository {
       });
 
       return await this.findById(uid);
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error adding purchase history:', error);
       throw new AppError('Failed to record purchase', 500);
     }
@@ -168,11 +177,12 @@ class UserRepository {
         .where('unlockedDecks', 'array-contains', deckId)
         .get();
 
-      return snapshot.docs.map(doc => ({
+      return snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data()
       }));
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error finding users by deck:', error);
       throw new AppError('Failed to retrieve users', 500);
     }
@@ -181,7 +191,8 @@ class UserRepository {
   async delete(uid) {
     try {
       await this.collection.doc(uid).delete();
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error deleting user:', error);
       throw new AppError('Failed to delete user', 500);
     }

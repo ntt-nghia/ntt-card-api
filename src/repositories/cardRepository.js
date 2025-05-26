@@ -21,7 +21,8 @@ class CardRepository {
       });
 
       return await this.findById(docRef.id);
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error creating card:', error);
       throw new AppError('Failed to create card', 500);
     }
@@ -44,7 +45,8 @@ class CardRepository {
         id: doc.id,
         ...doc.data()
       };
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error finding card by ID:', error);
       throw new AppError('Failed to retrieve card', 500);
     }
@@ -75,11 +77,12 @@ class CardRepository {
 
       const snapshot = await query.get();
 
-      return snapshot.docs.map(doc => ({
+      return snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data()
       }));
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error finding cards by deck ID:', error);
       throw new AppError('Failed to retrieve cards', 500);
     }
@@ -99,20 +102,19 @@ class CardRepository {
     try {
       // Firestore doesn't support array-contains-any with multiple values
       // So we need to fetch cards for each deck and merge
-      const cardPromises = deckIds.map(deckId =>
-        this.findByDeckId(deckId, filters)
-      );
+      const cardPromises = deckIds.map((deckId) => this.findByDeckId(deckId, filters));
 
       const cardArrays = await Promise.all(cardPromises);
 
       // Flatten and remove duplicates
       const cardMap = new Map();
-      cardArrays.flat().forEach(card => {
+      cardArrays.flat().forEach((card) => {
         cardMap.set(card.id, card);
       });
 
       return Array.from(cardMap.values());
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error finding cards by deck IDs:', error);
       throw new AppError('Failed to retrieve cards', 500);
     }
@@ -145,16 +147,17 @@ class CardRepository {
 
       if (filters.theta) {
         query = query.where('theta', '>=', filters.theta.min)
-                     .where('theta', '<=', filters.theta.max);
+          .where('theta', '<=', filters.theta.max);
       }
 
       const snapshot = await query.get();
 
-      return snapshot.docs.map(doc => ({
+      return snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data()
       }));
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error finding cards by filters:', error);
       throw new AppError('Failed to retrieve cards', 500);
     }
@@ -175,11 +178,12 @@ class CardRepository {
 
       const snapshot = await query.get();
 
-      return snapshot.docs.map(doc => ({
+      return snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data()
       }));
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error finding unassigned cards:', error);
       throw new AppError('Failed to retrieve unassigned cards', 500);
     }
@@ -199,7 +203,8 @@ class CardRepository {
       });
 
       return await this.findById(cardId);
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error updating card:', error);
       throw new AppError('Failed to update card', 500);
     }
@@ -222,7 +227,8 @@ class CardRepository {
         deckIds.push(deckId);
         await this.update(cardId, { deckIds });
       }
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error adding card to deck:', error);
       throw new AppError('Failed to add card to deck', 500);
     }
@@ -246,7 +252,8 @@ class CardRepository {
         deckIds.splice(index, 1);
         await this.update(cardId, { deckIds });
       }
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error removing card from deck:', error);
       throw new AppError('Failed to remove card from deck', 500);
     }
@@ -260,10 +267,11 @@ class CardRepository {
   async updateStatistics(cardId, statistics) {
     try {
       await this.collection.doc(cardId).update({
-        'statistics': statistics,
+        statistics,
         updatedAt: new Date()
       });
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error updating card statistics:', error);
       throw new AppError('Failed to update card statistics', 500);
     }
@@ -289,7 +297,8 @@ class CardRepository {
       statistics.timesDrawn = (statistics.timesDrawn || 0) + 1;
 
       await this.updateStatistics(cardId, statistics);
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error incrementing language usage:', error);
       throw new AppError('Failed to update language usage', 500);
     }
@@ -305,7 +314,7 @@ class CardRepository {
       const batch = db.batch();
       const cardRefs = [];
 
-      cardsData.forEach(cardData => {
+      cardsData.forEach((cardData) => {
         const docRef = this.collection.doc();
         batch.set(docRef, {
           ...cardData,
@@ -318,8 +327,8 @@ class CardRepository {
       await batch.commit();
 
       // Fetch created cards
-      const cards = await Promise.all(
-        cardRefs.map(async ref => {
+      return await Promise.all(
+        cardRefs.map(async (ref) => {
           const doc = await ref.get();
           return {
             id: doc.id,
@@ -327,9 +336,8 @@ class CardRepository {
           };
         })
       );
-
-      return cards;
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error bulk creating cards:', error);
       throw new AppError('Failed to create cards', 500);
     }
@@ -342,7 +350,8 @@ class CardRepository {
   async delete(cardId) {
     try {
       await this.collection.doc(cardId).delete();
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error deleting card:', error);
       throw new AppError('Failed to delete card', 500);
     }

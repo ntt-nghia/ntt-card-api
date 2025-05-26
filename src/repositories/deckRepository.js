@@ -21,7 +21,8 @@ class DeckRepository {
       });
 
       return await this.findById(docRef.id);
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error creating deck:', error);
       throw new AppError('Failed to create deck', 500);
     }
@@ -44,7 +45,8 @@ class DeckRepository {
         id: doc.id,
         ...doc.data()
       };
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error finding deck by ID:', error);
       throw new AppError('Failed to retrieve deck', 500);
     }
@@ -77,11 +79,12 @@ class DeckRepository {
 
       const snapshot = await query.get();
 
-      return snapshot.docs.map(doc => ({
+      return snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data()
       }));
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error finding decks:', error);
       throw new AppError('Failed to retrieve decks', 500);
     }
@@ -103,11 +106,12 @@ class DeckRepository {
 
       const snapshot = await query.get();
 
-      return snapshot.docs.map(doc => ({
+      return snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data()
       }));
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error finding decks by relationship type:', error);
       throw new AppError('Failed to retrieve decks', 500);
     }
@@ -125,11 +129,12 @@ class DeckRepository {
 
     try {
       const decks = await Promise.all(
-        deckIds.map(id => this.findById(id))
+        deckIds.map((id) => this.findById(id))
       );
 
-      return decks.filter(deck => deck !== null);
-    } catch (error) {
+      return decks.filter((deck) => deck !== null);
+    }
+    catch (error) {
       logger.error('Error finding decks by IDs:', error);
       throw new AppError('Failed to retrieve decks', 500);
     }
@@ -149,7 +154,8 @@ class DeckRepository {
       });
 
       return await this.findById(deckId);
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error updating deck:', error);
       throw new AppError('Failed to update deck', 500);
     }
@@ -163,10 +169,11 @@ class DeckRepository {
   async updateStatistics(deckId, statistics) {
     try {
       await this.collection.doc(deckId).update({
-        'statistics': statistics,
+        statistics,
         updatedAt: new Date()
       });
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error updating deck statistics:', error);
       throw new AppError('Failed to update deck statistics', 500);
     }
@@ -180,10 +187,11 @@ class DeckRepository {
   async updateCardCount(deckId, cardCount) {
     try {
       await this.collection.doc(deckId).update({
-        'cardCount': cardCount,
+        cardCount,
         updatedAt: new Date()
       });
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error updating deck card count:', error);
       throw new AppError('Failed to update card count', 500);
     }
@@ -204,7 +212,8 @@ class DeckRepository {
       statistics.purchases = (statistics.purchases || 0) + 1;
 
       await this.updateStatistics(deckId, statistics);
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error incrementing purchases:', error);
       throw new AppError('Failed to update purchase count', 500);
     }
@@ -217,7 +226,8 @@ class DeckRepository {
   async delete(deckId) {
     try {
       await this.collection.doc(deckId).delete();
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error deleting deck:', error);
       throw new AppError('Failed to delete deck', 500);
     }

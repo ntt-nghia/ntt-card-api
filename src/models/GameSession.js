@@ -3,7 +3,8 @@ const Joi = require('joi');
 const PlayerSchema = Joi.object({
   userId: Joi.string().required(),
   displayName: Joi.string().min(1).max(50).required(),
-  connectionLevel: Joi.number().integer().min(1).max(4).default(1),
+  connectionLevel: Joi.number().integer().min(1).max(4)
+    .default(1),
   points: Joi.number().integer().min(0).default(0),
   isActive: Joi.boolean().default(true)
 });
@@ -11,7 +12,8 @@ const PlayerSchema = Joi.object({
 const GameConfigurationSchema = Joi.object({
   contentFilters: Joi.object().default({}),
   includeUnassignedCards: Joi.boolean().default(false), // Include cards not in any deck
-  maxDuration: Joi.number().integer().min(900000).max(7200000).optional(), // 15min - 2hrs
+  maxDuration: Joi.number().integer().min(900000).max(7200000)
+    .optional(), // 15min - 2hrs
   winCondition: Joi.string().valid('first_to_level_4', 'highest_points', 'collaborative').default('first_to_level_4'),
   customRules: Joi.object().optional()
 });
@@ -32,7 +34,8 @@ const GameSessionSchema = Joi.object({
   language: Joi.string().valid('en', 'vn').default('en'),
 
   // Game state
-  currentLevel: Joi.number().integer().min(1).max(4).default(1),
+  currentLevel: Joi.number().integer().min(1).max(4)
+    .default(1),
   status: Joi.string().valid('waiting', 'active', 'paused', 'completed').default('waiting'),
 
   // Card tracking
@@ -63,9 +66,7 @@ const GameSessionSchema = Joi.object({
   }).default({})
 });
 
-const validateGameSession = (sessionData) => {
-  return GameSessionSchema.validate(sessionData);
-};
+const validateGameSession = (sessionData) => GameSessionSchema.validate(sessionData);
 
 /**
  * Calculate session statistics
@@ -84,9 +85,9 @@ const calculateSessionStats = (session) => {
     completionRate: totalCards > 0 ? completedCards / totalCards : 0,
     skipRate: totalCards > 0 ? skippedCards / totalCards : 0,
     averageLevel: session.currentLevel,
-    duration: session.endedAt ?
-      new Date(session.endedAt) - new Date(session.startedAt) :
-      new Date() - new Date(session.startedAt)
+    duration: session.endedAt
+      ? new Date(session.endedAt) - new Date(session.startedAt)
+      : new Date() - new Date(session.startedAt)
   };
 };
 
@@ -95,10 +96,8 @@ const calculateSessionStats = (session) => {
  * @param {Object} session - Session object
  * @returns {boolean} Can draw
  */
-const canDrawCard = (session) => {
-  return session.status === 'active' &&
-         session.availableCardPool.length > session.drawnCards.length;
-};
+const canDrawCard = (session) => session.status === 'active'
+         && session.availableCardPool.length > session.drawnCards.length;
 
 module.exports = {
   GameSessionSchema,

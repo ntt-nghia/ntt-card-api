@@ -32,7 +32,7 @@ class CardService {
     // Update deck card counts if card has deck associations
     if (card.deckIds && card.deckIds.length > 0) {
       await Promise.all(
-        card.deckIds.map(deckId => this.updateDeckCardCount(deckId))
+        card.deckIds.map((deckId) => this.updateDeckCardCount(deckId))
       );
     }
 
@@ -63,10 +63,10 @@ class CardService {
    * @returns {Array} Array of cards
    */
   async getCardsByFilters(filters = {}, language = 'en') {
-    const cards = await this.cardRepository.findByFilters(filters);
+    const cards = this.cardRepository.findByFilters(filters);
 
     // Add display content for each card
-    return cards.map(card => ({
+    return cards.map((card) => ({
       ...card,
       displayContent: getCardContent(card, language)
     }));
@@ -86,19 +86,19 @@ class CardService {
     }
 
     // Get all decks to check their types
-    const decks = await this.deckRepository.findByIds(deckIds);
+    const decks = this.deckRepository.findByIds(deckIds);
 
     // Get cards for all decks
-    const cards = await this.cardRepository.findByDeckIds(deckIds, filters);
+    const cards = this.cardRepository.findByDeckIds(deckIds, filters);
 
     // Filter cards based on deck access
-    const accessibleCards = cards.filter(card => {
+    const accessibleCards = cards.filter((card) => {
       // If card is FREE, always accessible
       if (card.status === 'FREE') return true;
 
       // Check if user has access to any deck containing this premium card
-      return card.deckIds.some(deckId => {
-        const deck = decks.find(d => d.id === deckId);
+      return card.deckIds.some((deckId) => {
+        const deck = decks.find((d) => d.id === deckId);
         if (!deck) return false;
 
         // FREE deck or unlocked PREMIUM deck
@@ -107,7 +107,7 @@ class CardService {
     });
 
     // Add display content
-    return accessibleCards.map(card => ({
+    return accessibleCards.map((card) => ({
       ...card,
       displayContent: getCardContent(card, language)
     }));
@@ -120,9 +120,9 @@ class CardService {
    * @returns {Array} Array of unassigned cards
    */
   async getUnassignedCards(filters = {}, language = 'en') {
-    const cards = await this.cardRepository.findUnassignedCards(filters);
+    const cards = this.cardRepository.findUnassignedCards(filters);
 
-    return cards.map(card => ({
+    return cards.map((card) => ({
       ...card,
       displayContent: getCardContent(card, language)
     }));
@@ -152,14 +152,14 @@ class CardService {
     const oldDeckIds = card.deckIds || [];
     const newDeckIds = updatedCard.deckIds || [];
 
-    const addedDecks = newDeckIds.filter(id => !oldDeckIds.includes(id));
-    const removedDecks = oldDeckIds.filter(id => !newDeckIds.includes(id));
+    const addedDecks = newDeckIds.filter((id) => !oldDeckIds.includes(id));
+    const removedDecks = oldDeckIds.filter((id) => !newDeckIds.includes(id));
 
     const affectedDecks = [...new Set([...addedDecks, ...removedDecks])];
 
     if (affectedDecks.length > 0) {
       await Promise.all(
-        affectedDecks.map(deckId => this.updateDeckCardCount(deckId))
+        affectedDecks.map((deckId) => this.updateDeckCardCount(deckId))
       );
     }
 
@@ -172,12 +172,12 @@ class CardService {
    * @private
    */
   async updateDeckCardCount(deckId) {
-    const cards = await this.cardRepository.findByDeckId(deckId);
+    const cards = this.cardRepository.findByDeckId(deckId);
 
     const cardCount = {
       total: cards.length,
-      free: cards.filter(c => c.status === 'FREE').length,
-      premium: cards.filter(c => c.status === 'PREMIUM').length
+      free: cards.filter((c) => c.status === 'FREE').length,
+      premium: cards.filter((c) => c.status === 'PREMIUM').length
     };
 
     await this.deckRepository.updateCardCount(deckId, cardCount);
@@ -233,18 +233,18 @@ class CardService {
       validatedCards.push(value);
     }
 
-    const cards = await this.cardRepository.bulkCreate(validatedCards);
+    const cards = this.cardRepository.bulkCreate(validatedCards);
 
     // Update deck card counts
     const affectedDeckIds = new Set();
-    cards.forEach(card => {
+    cards.forEach((card) => {
       if (card.deckIds) {
-        card.deckIds.forEach(deckId => affectedDeckIds.add(deckId));
+        card.deckIds.forEach((deckId) => affectedDeckIds.add(deckId));
       }
     });
 
     await Promise.all(
-      Array.from(affectedDeckIds).map(deckId => this.updateDeckCardCount(deckId))
+      Array.from(affectedDeckIds).map((deckId) => this.updateDeckCardCount(deckId))
     );
 
     return cards;
@@ -266,7 +266,7 @@ class CardService {
     // Update deck card counts
     if (card.deckIds && card.deckIds.length > 0) {
       await Promise.all(
-        card.deckIds.map(deckId => this.updateDeckCardCount(deckId))
+        card.deckIds.map((deckId) => this.updateDeckCardCount(deckId))
       );
     }
   }

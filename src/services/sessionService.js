@@ -36,7 +36,7 @@ class SessionService {
     value.language = value.language || host.language || 'en';
 
     // Build available card pool
-    value.availableCardPool = await this.buildCardPool(
+    value.availableCardPool = this.buildCardPool(
       value.selectedDeckIds,
       host.unlockedDecks || [],
       value.relationshipType,
@@ -74,24 +74,24 @@ class SessionService {
 
     // Get cards from selected decks
     if (selectedDeckIds && selectedDeckIds.length > 0) {
-      const deckCards = await this.cardService.getCardsForDecks(
+      const deckCards = this.cardService.getCardsForDecks(
         selectedDeckIds,
         unlockedDeckIds,
         { relationshipType }
       );
-      cardIds = deckCards.map(card => card.id);
+      cardIds = deckCards.map((card) => card.id);
     }
 
     // Include unassigned cards if configured
     if (configuration.includeUnassignedCards) {
-      const unassignedCards = await this.cardService.getUnassignedCards({
+      const unassignedCards = this.cardService.getUnassignedCards({
         relationshipType
       });
 
       // Filter by access (only FREE unassigned cards)
       const freeUnassignedCards = unassignedCards
-        .filter(card => card.status === 'FREE')
-        .map(card => card.id);
+        .filter((card) => card.status === 'FREE')
+        .map((card) => card.id);
 
       cardIds = [...new Set([...cardIds, ...freeUnassignedCards])];
     }
@@ -127,7 +127,7 @@ class SessionService {
 
     // Get available cards (not yet drawn)
     const availableCardIds = session.availableCardPool.filter(
-      cardId => !session.drawnCards.includes(cardId)
+      (cardId) => !session.drawnCards.includes(cardId)
     );
 
     if (availableCardIds.length === 0) {
@@ -135,18 +135,18 @@ class SessionService {
     }
 
     // Filter by current connection level
-    const levelAppropriatCards = await this.filterCardsByLevel(
+    const levelAppropriateCards = this.filterCardsByLevel(
       availableCardIds,
       session.currentLevel
     );
 
-    if (levelAppropriatCards.length === 0) {
+    if (levelAppropriateCards.length === 0) {
       throw new AppError('No cards available for current connection level', 400);
     }
 
     // Randomly select a card
-    const randomIndex = Math.floor(Math.random() * levelAppropriatCards.length);
-    const selectedCardId = levelAppropriatCards[randomIndex];
+    const randomIndex = Math.floor(Math.random() * levelAppropriateCards.length);
+    const selectedCardId = levelAppropriateCards[randomIndex];
 
     // Get card with content
     const card = await this.cardService.getCardById(selectedCardId, session.language);
@@ -174,12 +174,12 @@ class SessionService {
    */
   async filterCardsByLevel(cardIds, maxLevel) {
     const cards = await Promise.all(
-      cardIds.map(id => this.cardService.getCardById(id))
+      cardIds.map((id) => this.cardService.getCardById(id))
     );
 
     return cards
-      .filter(card => card.connectionLevel <= maxLevel)
-      .map(card => card.id);
+      .filter((card) => card.connectionLevel <= maxLevel)
+      .map((card) => card.id);
   }
 
   /**
@@ -202,9 +202,7 @@ class SessionService {
     await this.sessionRepository.addCompletedCard(sessionId, cardId);
 
     // Check for level progression
-    const updatedSession = await this.checkLevelProgression(sessionId);
-
-    return updatedSession;
+    return await this.checkLevelProgression(sessionId);
   }
 
   /**
@@ -324,11 +322,11 @@ class SessionService {
 
       // Update average completion rate
       const currentAvg = statistics.averageCompletion || 0;
-      const newAvg = ((currentAvg * (statistics.sessionsPlayed - 1)) + sessionStats.completionRate) / statistics.sessionsPlayed;
-      statistics.averageCompletion = newAvg;
+      statistics.averageCompletion = ((currentAvg * (statistics.sessionsPlayed - 1)) + sessionStats.completionRate) / statistics.sessionsPlayed;
 
       await this.deckService.deckRepository.updateStatistics(deckId, statistics);
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('Error updating deck statistics:', error);
       // Don't throw - this is non-critical
     }
@@ -340,7 +338,7 @@ class SessionService {
    * @returns {Array} Active sessions
    */
   async getUserActiveSessions(userId) {
-    return await this.sessionRepository.findByHostId(userId, { status: 'active' });
+    return this.sessionRepository.findByHostId(userId, { status: 'active' });
   }
 
   /**
