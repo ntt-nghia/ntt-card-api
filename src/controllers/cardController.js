@@ -1,9 +1,10 @@
 const CardService = require('../services/cardService');
-const { AppError } = require('../middleware/errorHandler');
+const DeckService = require('../services/deckService');
 
 class CardController {
   constructor() {
     this.cardService = new CardService();
+    this.deckService = new DeckService();
   }
 
   /**
@@ -30,7 +31,7 @@ class CardController {
     if (deckId) {
       // Get cards for specific deck
       const userId = req.user?.uid;
-      cards = await this.cardService.getDeckCards(deckId, userId, filters);
+      cards = this.deckService.getDeckCards(deckId, userId, filters);
     } else {
       cards = this.cardService.getCardsByFilters(filters, language);
     }
@@ -70,7 +71,7 @@ class CardController {
     const filters = {};
     if (relationshipType) filters.relationshipType = relationshipType;
 
-    const cards = await this.cardService.getUnassignedCards(filters, language);
+    const cards = this.cardService.getUnassignedCards(filters, language);
 
     res.status(200).json({
       status: 'success',

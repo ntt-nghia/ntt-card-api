@@ -98,7 +98,7 @@ const createCardSchema = Joi.object({
     Joi.string().valid('friends', 'colleagues', 'new_couples', 'established_couples', 'family')
   ).min(1).required(),
   deckIds: Joi.array().items(Joi.string()).optional(),
-  status: Joi.string().valid('FREE', 'PREMIUM').optional(),
+  tier: Joi.string().valid('FREE', 'PREMIUM').optional(),
   theta: Joi.number().min(0.1).max(1.0).optional(),
   categories: Joi.array().items(Joi.string()).optional(),
   contentWarnings: Joi.array().items(Joi.string()).optional()

@@ -32,7 +32,7 @@ const DeckSchema = Joi.object({
     .required(),
 
   // Monetization
-  type: Joi.string().valid('FREE', 'PREMIUM').default('FREE'),
+  tier: Joi.string().valid('FREE', 'PREMIUM').default('FREE'),
   price: Joi.number().min(0).default(0),
   currency: Joi.string().default('USD'),
 
@@ -90,7 +90,7 @@ const getDeckText = (deck, field, language = 'en') => {
  * @param {Array} unlockedDecks - User's unlocked deck IDs
  * @returns {boolean} Has access
  */
-const hasAccessToDeck = (deck, unlockedDecks = []) => deck.type === 'FREE' || unlockedDecks.includes(deck.id);
+const hasAccessToDeck = (deck, unlockedDecks = []) => deck.tier === 'FREE' || unlockedDecks.includes(deck.id);
 
 module.exports = {
   DeckSchema,

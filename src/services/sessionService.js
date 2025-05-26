@@ -90,7 +90,7 @@ class SessionService {
 
       // Filter by access (only FREE unassigned cards)
       const freeUnassignedCards = unassignedCards
-        .filter((card) => card.status === 'FREE')
+        .filter((card) => card.tier === 'FREE')
         .map((card) => card.id);
 
       cardIds = [...new Set([...cardIds, ...freeUnassignedCards])];

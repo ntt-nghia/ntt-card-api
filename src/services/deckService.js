@@ -104,7 +104,7 @@ class DeckService {
    */
   userHasAccessToDeck(deck, user) {
     if (!deck || !user) return false;
-    return deck.type === 'FREE' || user.unlockedDecks?.includes(deck.id);
+    return deck.tier === 'FREE' || user.unlockedDecks?.includes(deck.id);
   }
 
   /**
@@ -163,7 +163,7 @@ class DeckService {
 
     // Filter premium cards if user doesn't have access
     if (userId && !deck.hasAccess) {
-      cards = cards.filter(card => card.status === 'FREE');
+      cards = cards.filter(card => card.tier === 'FREE');
     }
 
     return cards;
@@ -199,8 +199,8 @@ class DeckService {
 
     const cardCount = {
       total: cards.length,
-      free: cards.filter(c => c.status === 'FREE').length,
-      premium: cards.filter(c => c.status === 'PREMIUM').length
+      free: cards.filter(c => c.tier === 'FREE').length,
+      premium: cards.filter(c => c.tier === 'PREMIUM').length
     };
 
     await this.deckRepository.updateCardCount(deckId, cardCount);
