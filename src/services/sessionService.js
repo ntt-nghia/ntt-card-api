@@ -26,16 +26,13 @@ class SessionService {
       throw new AppError(`Validation error: ${error.details[0].message}`, 400);
     }
 
-    // Verify host exists
     const host = await this.userService.getUserById(value.hostId);
     if (!host) {
       throw new AppError('Host not found', 404);
     }
 
-    // Set language from user preference or session data
     value.language = value.language || host.language || 'en';
 
-    // Build available card pool
     value.availableCardPool = this.buildCardPool(
       value.selectedDeckIds,
       host.unlockedDecks || [],
@@ -47,10 +44,8 @@ class SessionService {
       throw new AppError('No cards available for selected configuration', 400);
     }
 
-    // Create session
     const session = await this.sessionRepository.create(value);
 
-    // Update user statistics
     await this.userService.recordSession(host.uid, {
       relationshipType: value.relationshipType,
       duration: 0,
@@ -72,7 +67,6 @@ class SessionService {
   async buildCardPool(selectedDeckIds, unlockedDeckIds, relationshipType, configuration) {
     let cardIds = [];
 
-    // Get cards from selected decks
     if (selectedDeckIds && selectedDeckIds.length > 0) {
       const deckCards = this.cardService.getCardsForDecks(
         selectedDeckIds,
@@ -82,13 +76,11 @@ class SessionService {
       cardIds = deckCards.map((card) => card.id);
     }
 
-    // Include unassigned cards if configured
     if (configuration.includeUnassignedCards) {
       const unassignedCards = this.cardService.getUnassignedCards({
         relationshipType
       });
 
-      // Filter by access (only FREE unassigned cards)
       const freeUnassignedCards = unassignedCards
         .filter((card) => card.tier === 'FREE')
         .map((card) => card.id);
@@ -125,7 +117,6 @@ class SessionService {
       throw new AppError('Cannot draw card: no cards available or session not active', 400);
     }
 
-    // Get available cards (not yet drawn)
     const availableCardIds = session.availableCardPool.filter(
       (cardId) => !session.drawnCards.includes(cardId)
     );
@@ -134,7 +125,6 @@ class SessionService {
       throw new AppError('No more cards available', 400);
     }
 
-    // Filter by current connection level
     const levelAppropriateCards = this.filterCardsByLevel(
       availableCardIds,
       session.currentLevel
@@ -144,20 +134,15 @@ class SessionService {
       throw new AppError('No cards available for current connection level', 400);
     }
 
-    // Randomly select a card
     const randomIndex = Math.floor(Math.random() * levelAppropriateCards.length);
     const selectedCardId = levelAppropriateCards[randomIndex];
 
-    // Get card with content
     const card = await this.cardService.getCardById(selectedCardId, session.language);
 
-    // Update session
     await this.sessionRepository.addDrawnCard(sessionId, selectedCardId);
 
-    // Record card drawn
     await this.cardService.recordCardDrawn(selectedCardId, session.language);
 
-    // Update session status if first card
     if (session.drawnCards.length === 0) {
       await this.sessionRepository.update(sessionId, { status: 'active' });
     }

@@ -9,7 +9,6 @@ class UserService {
   }
 
   async createUser(userData) {
-    // Validate user data
     const {
       error,
       value
@@ -19,13 +18,11 @@ class UserService {
       throw new AppError(`Validation error: ${error.details[0].message}`, 400);
     }
 
-    // Check if user already exists by uid (not email, since Firebase handles email uniqueness)
     const existingUser = await this.userRepository.findById(value.uid);
     if (existingUser) {
       throw new AppError('User already exists', 409);
     }
 
-    // Create user
     return await this.userRepository.create(value);
   }
 
@@ -70,7 +67,6 @@ class UserService {
     return await this.userRepository.update(uid, { preferences: updatedPreferences });
   }
 
-  // NEW: Update language preference
   async updateLanguagePreference(uid, language) {
     if (!['en', 'vn'].includes(language)) {
       throw new AppError('Invalid language. Supported languages: en, vn', 400);
@@ -79,13 +75,11 @@ class UserService {
     return await this.userRepository.updateLanguage(uid, language);
   }
 
-  // NEW: Get user's unlocked decks
   async getUserUnlockedDecks(uid) {
     const user = await this.getUserById(uid);
     return user.unlockedDecks || [];
   }
 
-  // NEW: Add deck to user's unlocked decks
   async unlockDeckForUser(uid, deckId, purchaseData = {}) {
     const user = await this.getUserById(uid);
 
@@ -105,7 +99,6 @@ class UserService {
     return await this.getUserById(uid);
   }
 
-  // UPDATED: Record session with deck information
   async recordSession(uid, sessionData) {
     const user = await this.getUserById(uid);
     const currentStats = user.statistics || {};
@@ -169,7 +162,6 @@ class UserService {
       }
     };
 
-    // Update favorite relationship type based on total usage
     const relationshipUsage = currentStats.relationshipTypeUsage || {};
     let favoriteType = gameData.relationshipType;
     let maxUsage = relationshipUsage[gameData.relationshipType] || 0;

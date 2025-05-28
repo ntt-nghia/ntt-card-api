@@ -82,7 +82,6 @@ const createDeckSchema = Joi.object({
   coverImageUrl: Joi.string().uri().optional()
 });
 
-// NEW: Card validation schemas
 const createCardSchema = Joi.object({
   content: Joi.alternatives().try(
     Joi.string().min(10).max(500),
@@ -104,7 +103,6 @@ const createCardSchema = Joi.object({
   contentWarnings: Joi.array().items(Joi.string()).optional()
 });
 
-// NEW: Generate cards schema
 const generateCardsSchema = Joi.object({
   relationshipType: Joi.string()
     .valid('friends', 'colleagues', 'new_couples', 'established_couples', 'family')
