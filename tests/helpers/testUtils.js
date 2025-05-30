@@ -1,23 +1,53 @@
 // tests/helpers/testUtils.js (Fixed version)
-const { mockFirebaseUser, mockUser, mockGameData } = require('./mockData');
+const {
+  mockFirebaseUser,
+  mockUser,
+  mockGameData
+} = require('./mockData');
 
 class TestUtils {
   static resetAllMocks() {
-    // Reset specific mocks directly
     if (global.mockFirebaseAuth) {
-      Object.values(global.mockFirebaseAuth).forEach(mockFn => {
-        if (typeof mockFn.mockReset === 'function') {
-          mockFn.mockReset();
-        }
-      });
+      Object.values(global.mockFirebaseAuth)
+        .forEach(mockFn => {
+          if (typeof mockFn.mockReset === 'function') {
+            mockFn.mockReset();
+          }
+        });
     }
 
     if (global.mockUserRepository) {
-      Object.values(global.mockUserRepository).forEach(mockFn => {
-        if (typeof mockFn.mockReset === 'function') {
-          mockFn.mockReset();
-        }
-      });
+      Object.values(global.mockUserRepository)
+        .forEach(mockFn => {
+          if (typeof mockFn.mockReset === 'function') {
+            mockFn.mockReset();
+          }
+        });
+    }
+
+    if (global.mockDeckRepository) {
+      Object.values(mockDeckRepository)
+        .forEach(mockFn => {
+          if (typeof mockFn.mockReset === 'function') {
+            mockFn.mockReset();
+          }
+        });
+    }
+    if (global.mockCardRepository) {
+      Object.values(mockCardRepository)
+        .forEach(mockFn => {
+          if (typeof mockFn.mockReset === 'function') {
+            mockFn.mockReset();
+          }
+        });
+    }
+    if (global.mockUserRepository) {
+       Object.values(mockUserRepository)
+        .forEach(mockFn => {
+          if (typeof mockFn.mockReset === 'function') {
+            mockFn.mockReset();
+          }
+        });
     }
   }
 
@@ -92,7 +122,7 @@ class TestUtils {
   static createValidPreferences() {
     return {
       relationshipTypes: ['friends', 'colleagues'],
-      contentFilters: { nsfw: false },
+      contentFilters: { nsfw: false }
     };
   }
 

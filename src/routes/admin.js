@@ -16,21 +16,21 @@ router.use(requireAdmin);
 
 // Deck management
 router.get('/decks', adminController.deckService.deckRepository.findAll);
-router.post('/decks', validate(createDeckSchema), adminController.createDeck);
-router.patch('/decks/:id', adminController.updateDeck);
-router.delete('/decks/:id', adminController.deleteDeck);
-router.post('/decks/:id/cards', adminController.addCardsToDeck);
-router.delete('/decks/:id/cards', adminController.removeCardsFromDeck);
+router.post('/decks', validate(createDeckSchema), adminController.adminCreateDeck);
+router.patch('/decks/:id', adminController.adminUpdateDeck);
+router.delete('/decks/:id', adminController.adminDeleteDeck);
+router.post('/decks/:id/cards', adminController.adminAddCardsToDeck);
+router.delete('/decks/:id/cards', adminController.adminRemoveCardsFromDeck);
 
 // Card management
-router.post('/cards', validate(createCardSchema), adminController.createCard);
-router.patch('/cards/:id', adminController.updateCard);
-router.delete('/cards/:id', adminController.deleteCard);
-router.post('/cards/bulk', adminController.bulkCreateCards);
-router.post('/cards/generate', validate(generateCardsSchema), adminController.generateCards);
+router.post('/cards', validate(createCardSchema), adminController.adminCreateCard);
+router.patch('/cards/:id', adminController.adminUpdateCard);
+router.delete('/cards/:id', adminController.adminDeleteCard);
+router.post('/cards/bulk', adminController.adminBulkCreateCards);
+router.post('/cards/generate', validate(generateCardsSchema), adminController.adminGenerateCards);
 
 // Analytics
-router.get('/analytics', adminController.getAnalytics);
-router.get('/analytics/decks/:id', adminController.getDeckAnalytics);
+router.get('/analytics', adminController.adminGetAnalytics);
+router.get('/analytics/decks/:id', adminController.adminGetDeckAnalytics);
 
 module.exports = router;

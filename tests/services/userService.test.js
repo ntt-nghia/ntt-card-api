@@ -422,7 +422,7 @@ describe('UserService', () => {
           new_couples: 2, // existing
           colleagues: 2 // new
         },
-        favoriteRelationshipType: 'friends' // still most played
+        favoriteRelationshipType: 'colleagues' // still most played
       };
 
       // Act

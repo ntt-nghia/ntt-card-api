@@ -66,8 +66,8 @@ class DeckRepository {
         query = query.where('relationshipType', '==', filters.relationshipType);
       }
 
-      if (filters.type) {
-        query = query.where('type', '==', filters.type);
+      if (filters.tier) {
+        query = query.where('tier', '==', filters.tier);
       }
 
       if (filters.status) {

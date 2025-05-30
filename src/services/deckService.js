@@ -56,7 +56,7 @@ class DeckService {
    * @returns {Array} Array of decks
    */
   async getDecksByRelationshipType(relationshipType, userId = null) {
-    const decks = this.deckRepository.findByRelationshipType(relationshipType);
+    const decks = await this.deckRepository.findByRelationshipType(relationshipType);
 
     // Add access information if userId provided
     if (userId) {
@@ -83,7 +83,7 @@ class DeckService {
       throw new AppError('User not found', 404);
     }
 
-    const allDecks = this.deckRepository.findAll({
+    const allDecks = await this.deckRepository.findAll({
       ...filters,
       status: 'active'
     });
@@ -121,7 +121,7 @@ class DeckService {
       throw new AppError('Deck not found', 404);
     }
 
-    if (deck.type !== 'PREMIUM') {
+    if (deck.tier !== 'PREMIUM') {
       throw new AppError('Deck is already free', 400);
     }
 
@@ -159,7 +159,7 @@ class DeckService {
     const deck = await this.getDeckById(deckId, userId);
 
     // Get all cards for the deck
-    let cards = this.cardRepository.findByDeckId(deckId, filters);
+    let cards = await this.cardRepository.findByDeckId(deckId, filters);
 
     // Filter premium cards if user doesn't have access
     if (userId && !deck.hasAccess) {
@@ -195,7 +195,7 @@ class DeckService {
    * @param {string} deckId - Deck ID
    */
   async updateDeckCardCount(deckId) {
-    const cards = this.cardRepository.findByDeckId(deckId);
+    const cards = await this.cardRepository.findByDeckId(deckId);
 
     const cardCount = {
       total: cards.length,
@@ -256,7 +256,7 @@ class DeckService {
     const unlockedUsers = await this.userRepository.findByUnlockedDeck(deckId);
 
     // Get cards statistics
-    const cards = this.cardRepository.findByDeckId(deckId);
+    const cards = await this.cardRepository.findByDeckId(deckId);
     const totalDraws = cards.reduce((sum, card) =>
       sum + (card.statistics?.timesDrawn || 0), 0
     );
@@ -280,7 +280,7 @@ class DeckService {
    */
   async deleteDeck(deckId) {
     // Remove deck reference from all cards
-    const cards = this.cardRepository.findByDeckId(deckId);
+    const cards = await this.cardRepository.findByDeckId(deckId);
     await Promise.all(
       cards.map(card => this.cardRepository.removeFromDeck(card.id, deckId))
     );

@@ -101,7 +101,6 @@ class UserRepository {
     }
   }
 
-  // NEW: Update language preference
   async updateLanguage(uid, language) {
     try {
       await this.collection.doc(uid).update({
@@ -117,7 +116,6 @@ class UserRepository {
     }
   }
 
-  // NEW: Add unlocked deck
   async addUnlockedDeck(uid, deckId) {
     try {
       const user = await this.findById(uid);
@@ -143,7 +141,6 @@ class UserRepository {
     }
   }
 
-  // NEW: Add purchase history
   async addPurchaseHistory(uid, purchaseData) {
     try {
       const user = await this.findById(uid);
@@ -170,7 +167,6 @@ class UserRepository {
     }
   }
 
-  // NEW: Get users by unlocked deck
   async findByUnlockedDeck(deckId) {
     try {
       const snapshot = await this.collection

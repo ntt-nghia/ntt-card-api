@@ -16,7 +16,7 @@ class AdminController {
    * Create new deck
    * POST /api/admin/decks
    */
-  createDeck = async (req, res) => {
+  adminCreateDeck = async (req, res) => {
     const deck = await this.deckService.createDeck({
       ...req.body,
       createdBy: req.user.uid
@@ -35,7 +35,7 @@ class AdminController {
    * Update deck
    * PATCH /api/admin/decks/:id
    */
-  updateDeck = async (req, res) => {
+  adminUpdateDeck = async (req, res) => {
     const { id } = req.params;
 
     const deck = await this.deckService.updateDeck(id, req.body);
@@ -53,7 +53,7 @@ class AdminController {
    * Delete deck
    * DELETE /api/admin/decks/:id
    */
-  deleteDeck = async (req, res) => {
+  adminDeleteDeck = async (req, res) => {
     const { id } = req.params;
 
     await this.deckService.deleteDeck(id);
@@ -70,7 +70,7 @@ class AdminController {
    * Add cards to deck
    * POST /api/admin/decks/:id/cards
    */
-  addCardsToDeck = async (req, res) => {
+  adminAddCardsToDeck = async (req, res) => {
     const { id } = req.params;
     const { cardIds } = req.body;
 
@@ -92,7 +92,7 @@ class AdminController {
    * Remove cards from deck
    * DELETE /api/admin/decks/:id/cards
    */
-  removeCardsFromDeck = async (req, res) => {
+  adminRemoveCardsFromDeck = async (req, res) => {
     const { id } = req.params;
     const { cardIds } = req.body;
 
@@ -116,7 +116,7 @@ class AdminController {
    * Create new card
    * POST /api/admin/cards
    */
-  createCard = async (req, res) => {
+  adminCreateCard = async (req, res) => {
     const card = await this.cardService.createCard({
       ...req.body,
       createdBy: req.user.uid
@@ -135,7 +135,7 @@ class AdminController {
    * Update card
    * PATCH /api/admin/cards/:id
    */
-  updateCard = async (req, res) => {
+  adminUpdateCard = async (req, res) => {
     const { id } = req.params;
 
     const card = await this.cardService.updateCard(id, req.body);
@@ -153,7 +153,7 @@ class AdminController {
    * Delete card
    * DELETE /api/admin/cards/:id
    */
-  deleteCard = async (req, res) => {
+  adminDeleteCard = async (req, res) => {
     const { id } = req.params;
 
     await this.cardService.deleteCard(id);
@@ -170,7 +170,7 @@ class AdminController {
    * Bulk create cards
    * POST /api/admin/cards/bulk
    */
-  bulkCreateCards = async (req, res) => {
+  adminBulkCreateCards = async (req, res) => {
     const { cards } = req.body;
 
     if (!cards || !Array.isArray(cards)) {
@@ -198,7 +198,7 @@ class AdminController {
    * Generate cards with AI
    * POST /api/admin/cards/generate
    */
-  generateCards = async (req, res) => {
+  adminGenerateCards = async (req, res) => {
     const {
       relationshipType,
       connectionLevel,
@@ -236,7 +236,7 @@ class AdminController {
    * Get system analytics
    * GET /api/admin/analytics
    */
-  getAnalytics = async (req, res) => {
+  adminGetAnalytics = async (req, res) => {
     const { startDate, endDate, type = 'overview' } = req.query;
 
     const filters = {};
@@ -265,7 +265,7 @@ class AdminController {
    * Get deck analytics
    * GET /api/admin/analytics/decks/:id
    */
-  getDeckAnalytics = async (req, res) => {
+  adminGetDeckAnalytics = async (req, res) => {
     const { id } = req.params;
 
     const statistics = await this.deckService.getDeckStatistics(id);
