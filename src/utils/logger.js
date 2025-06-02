@@ -8,11 +8,11 @@ const logger = winston.createLogger({
     winston.format.errors({ stack: true }),
     winston.format.json()
   ),
-  defaultMeta: { service: 'connection-game-api' },
-  transports: [
-    new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.File({ filename: config.logging.file })
-  ]
+  defaultMeta: { service: 'connection-game-api' }
+  // transports: [
+  //   new winston.transports.File({ filename: 'error.log', level: 'error' }),
+  //   new winston.transports.File({ filename: config.logging.file })
+  // ]
 });
 
 if (config.nodeEnv !== 'production') {

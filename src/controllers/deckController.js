@@ -19,8 +19,8 @@ class DeckController {
     if (type) filters.type = type;
 
     const decks = userId
-      ? this.deckService.getUserAvailableDecks(userId, filters)
-      : this.deckService.deckRepository.findAll(filters);
+      ? await this.deckService.getUserAvailableDecks(userId, filters)
+      : await this.deckService.deckRepository.findAll(filters);
 
     res.status(200).json({
       status: 'success',
