@@ -1,6 +1,7 @@
 const { auth } = require('../config/firebase');
 const { AppError } = require('./errorHandler');
 const logger = require('../utils/logger');
+
 const authenticateUser = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -35,7 +36,6 @@ const requireAdmin = async (req, res, next) => {
       throw new AppError('Authentication required', 401);
     }
 
-    // Check custom claims for admin role
     const userRecord = await auth.getUser(req.user.uid);
     if (!userRecord.customClaims?.admin) {
       throw new AppError('Admin access required', 403);
@@ -59,7 +59,6 @@ const optionalAuth = async (req, res, next) => {
 
     next();
   } catch (error) {
-    // Continue without authentication for optional auth
     next();
   }
 };

@@ -1,7 +1,10 @@
 // src/routes/auth.js - Updated with new endpoints
 const express = require('express');
 const authController = require('../controllers/authController');
-const { authenticateUser, requireAdmin } = require('../middleware/auth');
+const {
+  authenticateUser,
+  requireAdmin
+} = require('../middleware/auth');
 const validate = require('../middleware/validation');
 const {
   registerSchema,

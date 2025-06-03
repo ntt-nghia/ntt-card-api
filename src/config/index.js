@@ -26,6 +26,15 @@ const config = {
     databaseURL: process.env.FIREBASE_DATABASE_URL
   },
 
+  initAdmin: {
+    email: process.env.FIREBASE_INIT_ADMIN_EMAIL,
+    password: process.env.FIREBASE_INIT_ADMIN_PASSWORD,
+    displayName: process.env.FIREBASE_INIT_ADMIN_DISPLAYNAME,
+    birthDate: process.env.FIREBASE_INIT_ADMIN_BIRTHDATE,
+    language: process.env.FIREBASE_INIT_ADMIN_LANGUAGE,
+    role: process.env.FIREBASE_INIT_ADMIN_ROLE,
+  },
+
   // JWT configuration
   jwt: {
     secret: process.env.JWT_SECRET || 'your-super-secret-jwt-key',
