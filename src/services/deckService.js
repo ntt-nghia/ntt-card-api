@@ -17,15 +17,18 @@ class DeckService {
    * @param {Object} deckData - Deck data
    * @returns {Object} Created deck
    */
-  async createDeck(deckData) {
-    const { error, value } = validateDeck(deckData);
+  createDeck = async deckData => {
+    const {
+      error,
+      value
+    } = validateDeck(deckData);
     if (error) {
       logger.error('Deck validation error:', error.details);
       throw new AppError(`Validation error: ${error.details[0].message}`, 400);
     }
 
     return await this.deckRepository.create(value);
-  }
+  };
 
   /**
    * Get deck by ID
@@ -33,7 +36,7 @@ class DeckService {
    * @param {string} userId - User ID (optional, for access check)
    * @returns {Object} Deck with access info
    */
-  async getDeckById(deckId, userId = null) {
+  getDeckById = async (deckId, userId = null) => {
     const deck = await this.deckRepository.findById(deckId);
     if (!deck) {
       throw new AppError('Deck not found', 404);
@@ -47,7 +50,7 @@ class DeckService {
     }
 
     return deck;
-  }
+  };
 
   /**
    * Get all decks for a relationship type
@@ -55,7 +58,7 @@ class DeckService {
    * @param {string} userId - User ID (optional)
    * @returns {Array} Array of decks
    */
-  async getDecksByRelationshipType(relationshipType, userId = null) {
+  getDecksByRelationshipType = async (relationshipType, userId = null) => {
     const decks = await this.deckRepository.findByRelationshipType(relationshipType);
 
     // Add access information if userId provided
@@ -69,7 +72,7 @@ class DeckService {
     }
 
     return decks;
-  }
+  };
 
   /**
    * Get decks available to user
@@ -77,7 +80,7 @@ class DeckService {
    * @param {Object} filters - Additional filters
    * @returns {Array} Array of accessible decks
    */
-  async getUserAvailableDecks(userId, filters = {}) {
+  getUserAvailableDecks = async (userId, filters = {}) => {
     const user = await this.userRepository.findById(userId);
     if (!user) {
       throw new AppError('User not found', 404);
@@ -94,7 +97,7 @@ class DeckService {
       hasAccess: this.userHasAccessToDeck(deck, user),
       isUnlocked: user.unlockedDecks?.includes(deck.id) || false
     }));
-  }
+  };
 
   /**
    * Check if user has access to deck
@@ -102,10 +105,10 @@ class DeckService {
    * @param {Object} user - User object
    * @returns {boolean} Has access
    */
-  userHasAccessToDeck(deck, user) {
+  userHasAccessToDeck = (deck, user) => {
     if (!deck || !user) return false;
     return deck.tier === 'FREE' || user.unlockedDecks?.includes(deck.id);
-  }
+  };
 
   /**
    * Unlock deck for user
@@ -114,7 +117,7 @@ class DeckService {
    * @param {Object} purchaseData - Purchase information
    * @returns {Object} Updated user
    */
-  async unlockDeck(userId, deckId, purchaseData = {}) {
+  unlockDeck = async (userId, deckId, purchaseData = {}) => {
     // Verify deck exists and is premium
     const deck = await this.deckRepository.findById(deckId);
     if (!deck) {
@@ -146,7 +149,7 @@ class DeckService {
     await this.deckRepository.incrementPurchases(deckId);
 
     return await this.userRepository.findById(userId);
-  }
+  };
 
   /**
    * Get cards for a deck
@@ -155,7 +158,7 @@ class DeckService {
    * @param {Object} filters - Additional filters
    * @returns {Array} Array of cards
    */
-  async getDeckCards(deckId, userId = null, filters = {}) {
+  getDeckCards = async (deckId, userId = null, filters = {}) => {
     const deck = await this.getDeckById(deckId, userId);
 
     // Get all cards for the deck
@@ -167,7 +170,7 @@ class DeckService {
     }
 
     return cards;
-  }
+  };
 
   /**
    * Update deck
@@ -175,26 +178,29 @@ class DeckService {
    * @param {Object} updateData - Update data
    * @returns {Object} Updated deck
    */
-  async updateDeck(deckId, updateData) {
+  updateDeck = async (deckId, updateData) => {
     const deck = await this.deckRepository.findById(deckId);
     if (!deck) {
       throw new AppError('Deck not found', 404);
     }
 
     // Validate update data
-    const { error, value } = validateDeck({ ...deck, ...updateData });
+    const {
+      error,
+      value
+    } = validateDeck({ ...deck, ...updateData });
     if (error) {
       throw new AppError(`Validation error: ${error.details[0].message}`, 400);
     }
 
     return await this.deckRepository.update(deckId, updateData);
-  }
+  };
 
   /**
    * Update deck card count
    * @param {string} deckId - Deck ID
    */
-  async updateDeckCardCount(deckId) {
+  updateDeckCardCount = async deckId => {
     const cards = await this.cardRepository.findByDeckId(deckId);
 
     const cardCount = {
@@ -205,14 +211,14 @@ class DeckService {
 
     await this.deckRepository.updateCardCount(deckId, cardCount);
     return cardCount;
-  }
+  };
 
   /**
    * Add cards to deck
    * @param {string} deckId - Deck ID
    * @param {Array} cardIds - Array of card IDs
    */
-  async addCardsToDeck(deckId, cardIds) {
+  addCardsToDeck = async (deckId, cardIds) => {
     const deck = await this.deckRepository.findById(deckId);
     if (!deck) {
       throw new AppError('Deck not found', 404);
@@ -225,28 +231,28 @@ class DeckService {
 
     // Update card count
     await this.updateDeckCardCount(deckId);
-  }
+  };
 
   /**
    * Remove cards from deck
    * @param {string} deckId - Deck ID
    * @param {Array} cardIds - Array of card IDs
    */
-  async removeCardsFromDeck(deckId, cardIds) {
+  removeCardsFromDeck = async (deckId, cardIds) => {
     await Promise.all(
       cardIds.map(cardId => this.cardRepository.removeFromDeck(cardId, deckId))
     );
 
     // Update card count
     await this.updateDeckCardCount(deckId);
-  }
+  };
 
   /**
    * Get deck statistics
    * @param {string} deckId - Deck ID
    * @returns {Object} Deck statistics
    */
-  async getDeckStatistics(deckId) {
+  getDeckStatistics = async deckId => {
     const deck = await this.deckRepository.findById(deckId);
     if (!deck) {
       throw new AppError('Deck not found', 404);
@@ -272,13 +278,13 @@ class DeckService {
       averageSkipRate: avgSkipRate,
       revenue: deck.price * (deck.statistics?.purchases || 0)
     };
-  }
+  };
 
   /**
    * Delete deck
    * @param {string} deckId - Deck ID
    */
-  async deleteDeck(deckId) {
+  deleteDeck = async deckId => {
     // Remove deck reference from all cards
     const cards = await this.cardRepository.findByDeckId(deckId);
     await Promise.all(
@@ -287,7 +293,9 @@ class DeckService {
 
     // Delete the deck
     await this.deckRepository.delete(deckId);
-  }
+  };
+
+  adminFindAll = async filters => this.deckRepository.findAll(filters);
 }
 
 module.exports = DeckService;

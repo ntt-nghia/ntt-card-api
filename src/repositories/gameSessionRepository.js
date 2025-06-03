@@ -12,7 +12,7 @@ class GameSessionRepository {
    * @param {Object} sessionData - Session data
    * @returns {Object} Created session with ID
    */
-  async create(sessionData) {
+  create = async sessionData => {
     try {
       const docRef = await this.collection.add({
         ...sessionData,
@@ -25,16 +25,17 @@ class GameSessionRepository {
       logger.error('Error creating session:', error);
       throw new AppError('Failed to create session', 500);
     }
-  }
+  };
 
   /**
    * Find session by ID
    * @param {string} sessionId - Session ID
    * @returns {Object|null} Session object or null
    */
-  async findById(sessionId) {
+  findById = async sessionId => {
     try {
-      const doc = await this.collection.doc(sessionId).get();
+      const doc = await this.collection.doc(sessionId)
+        .get();
 
       if (!doc.exists) {
         return null;
@@ -48,7 +49,7 @@ class GameSessionRepository {
       logger.error('Error finding session by ID:', error);
       throw new AppError('Failed to retrieve session', 500);
     }
-  }
+  };
 
   /**
    * Find sessions by host ID
@@ -56,7 +57,7 @@ class GameSessionRepository {
    * @param {Object} filters - Additional filters
    * @returns {Array} Array of sessions
    */
-  async findByHostId(hostId, filters = {}) {
+  findByHostId = async (hostId, filters = {}) => {
     try {
       let query = this.collection.where('hostId', '==', hostId);
 
@@ -80,7 +81,7 @@ class GameSessionRepository {
       logger.error('Error finding sessions by host ID:', error);
       throw new AppError('Failed to retrieve sessions', 500);
     }
-  }
+  };
 
   /**
    * Update session
@@ -88,26 +89,27 @@ class GameSessionRepository {
    * @param {Object} updateData - Update data
    * @returns {Object} Updated session
    */
-  async update(sessionId, updateData) {
+  update = async (sessionId, updateData) => {
     try {
-      await this.collection.doc(sessionId).update({
-        ...updateData,
-        updatedAt: new Date()
-      });
+      await this.collection.doc(sessionId)
+        .update({
+          ...updateData,
+          updatedAt: new Date()
+        });
 
       return await this.findById(sessionId);
     } catch (error) {
       logger.error('Error updating session:', error);
       throw new AppError('Failed to update session', 500);
     }
-  }
+  };
 
   /**
    * Add drawn card to session
    * @param {string} sessionId - Session ID
    * @param {string} cardId - Card ID
    */
-  async addDrawnCard(sessionId, cardId) {
+  addDrawnCard = async (sessionId, cardId) => {
     try {
       const session = await this.findById(sessionId);
       if (!session) {
@@ -123,14 +125,14 @@ class GameSessionRepository {
       logger.error('Error adding drawn card:', error);
       throw new AppError('Failed to add drawn card', 500);
     }
-  }
+  };
 
   /**
    * Add completed card to session
    * @param {string} sessionId - Session ID
    * @param {string} cardId - Card ID
    */
-  async addCompletedCard(sessionId, cardId) {
+  addCompletedCard = async (sessionId, cardId) => {
     try {
       const session = await this.findById(sessionId);
       if (!session) {
@@ -146,14 +148,14 @@ class GameSessionRepository {
       logger.error('Error adding completed card:', error);
       throw new AppError('Failed to add completed card', 500);
     }
-  }
+  };
 
   /**
    * Add skipped card to session
    * @param {string} sessionId - Session ID
    * @param {string} cardId - Card ID
    */
-  async addSkippedCard(sessionId, cardId) {
+  addSkippedCard = async (sessionId, cardId) => {
     try {
       const session = await this.findById(sessionId);
       if (!session) {
@@ -169,14 +171,14 @@ class GameSessionRepository {
       logger.error('Error adding skipped card:', error);
       throw new AppError('Failed to add skipped card', 500);
     }
-  }
+  };
 
   /**
    * Delete old sessions (cleanup)
    * @param {number} daysOld - Delete sessions older than this many days
    * @returns {number} Number of deleted sessions
    */
-  async deleteOldSessions(daysOld = 7) {
+  deleteOldSessions = async (daysOld = 7) => {
     try {
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - daysOld);
@@ -201,14 +203,14 @@ class GameSessionRepository {
       logger.error('Error deleting old sessions:', error);
       throw new AppError('Failed to delete old sessions', 500);
     }
-  }
+  };
 
   /**
    * Get session analytics
    * @param {Object} filters - Query filters
    * @returns {Object} Analytics data
    */
-  async getAnalytics(filters = {}) {
+  getAnalytics = async (filters = {}) => {
     try {
       let query = this.collection;
 
@@ -280,7 +282,7 @@ class GameSessionRepository {
       logger.error('Error getting session analytics:', error);
       throw new AppError('Failed to get analytics', 500);
     }
-  }
+  };
 }
 
 module.exports = GameSessionRepository;

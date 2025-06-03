@@ -13,6 +13,24 @@ class AdminController {
   // Deck Management
 
   /**
+   * Find All
+   * POST /api/v1/admin/decks
+   */
+  adminFindAll = async (req, res) => {
+    const {filters} = req.query;
+    const decks = await this.deckService.adminFindAll(filters);
+
+    res.status(201)
+      .json({
+        status: 'success',
+        data: {
+          decks,
+          totals: decks.length,
+        }
+      });
+  };
+
+  /**
    * Create new deck
    * POST /api/v1/admin/decks
    */

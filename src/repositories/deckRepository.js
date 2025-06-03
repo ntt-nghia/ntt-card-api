@@ -12,7 +12,7 @@ class DeckRepository {
    * @param {Object} deckData - Deck data
    * @returns {Object} Created deck with ID
    */
-  async create(deckData) {
+  create = async deckData => {
     try {
       const docRef = await this.collection.add({
         ...deckData,
@@ -21,21 +21,21 @@ class DeckRepository {
       });
 
       return await this.findById(docRef.id);
-    }
-    catch (error) {
+    } catch (error) {
       logger.error('Error creating deck:', error);
       throw new AppError('Failed to create deck', 500);
     }
-  }
+  };
 
   /**
    * Find deck by ID
    * @param {string} deckId - Deck ID
    * @returns {Object|null} Deck object or null
    */
-  async findById(deckId) {
+  findById = async deckId => {
     try {
-      const doc = await this.collection.doc(deckId).get();
+      const doc = await this.collection.doc(deckId)
+        .get();
 
       if (!doc.exists) {
         return null;
@@ -45,19 +45,18 @@ class DeckRepository {
         id: doc.id,
         ...doc.data()
       };
-    }
-    catch (error) {
+    } catch (error) {
       logger.error('Error finding deck by ID:', error);
       throw new AppError('Failed to retrieve deck', 500);
     }
-  }
+  };
 
   /**
    * Find all decks
    * @param {Object} filters - Query filters
    * @returns {Array} Array of decks
    */
-  async findAll(filters = {}) {
+  findAll = async (filters = {}) => {
     try {
       let query = this.collection;
 
@@ -79,16 +78,15 @@ class DeckRepository {
 
       const snapshot = await query.get();
 
-      return snapshot.docs.map((doc) => ({
+      return snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
-    }
-    catch (error) {
+    } catch (error) {
       logger.error('Error finding decks:', error);
       throw new AppError('Failed to retrieve decks', 500);
     }
-  }
+  };
 
   /**
    * Find decks by relationship type
@@ -96,7 +94,7 @@ class DeckRepository {
    * @param {boolean} activeOnly - Only return active decks
    * @returns {Array} Array of decks
    */
-  async findByRelationshipType(relationshipType, activeOnly = true) {
+  findByRelationshipType = async (relationshipType, activeOnly = true) => {
     try {
       let query = this.collection.where('relationshipType', '==', relationshipType);
 
@@ -110,19 +108,18 @@ class DeckRepository {
         id: doc.id,
         ...doc.data()
       }));
-    }
-    catch (error) {
+    } catch (error) {
       logger.error('Error finding decks by relationship type:', error);
       throw new AppError('Failed to retrieve decks', 500);
     }
-  }
+  };
 
   /**
    * Find decks by IDs
    * @param {Array} deckIds - Array of deck IDs
    * @returns {Array} Array of decks
    */
-  async findByIds(deckIds) {
+  findByIds = async (deckIds) => {
     if (!deckIds || deckIds.length === 0) {
       return [];
     }
@@ -133,12 +130,11 @@ class DeckRepository {
       );
 
       return decks.filter((deck) => deck !== null);
-    }
-    catch (error) {
+    } catch (error) {
       logger.error('Error finding decks by IDs:', error);
       throw new AppError('Failed to retrieve decks', 500);
     }
-  }
+  };
 
   /**
    * Update deck
@@ -146,62 +142,62 @@ class DeckRepository {
    * @param {Object} updateData - Update data
    * @returns {Object} Updated deck
    */
-  async update(deckId, updateData) {
+  update = async (deckId, updateData) => {
     try {
-      await this.collection.doc(deckId).update({
-        ...updateData,
-        updatedAt: new Date()
-      });
+      await this.collection.doc(deckId)
+        .update({
+          ...updateData,
+          updatedAt: new Date()
+        });
 
       return await this.findById(deckId);
-    }
-    catch (error) {
+    } catch (error) {
       logger.error('Error updating deck:', error);
       throw new AppError('Failed to update deck', 500);
     }
-  }
+  };
 
   /**
    * Update deck statistics
    * @param {string} deckId - Deck ID
    * @param {Object} statistics - Statistics to update
    */
-  async updateStatistics(deckId, statistics) {
+  updateStatistics = async (deckId, statistics) => {
     try {
-      await this.collection.doc(deckId).update({
-        statistics,
-        updatedAt: new Date()
-      });
-    }
-    catch (error) {
+      await this.collection.doc(deckId)
+        .update({
+          statistics,
+          updatedAt: new Date()
+        });
+    } catch (error) {
       logger.error('Error updating deck statistics:', error);
       throw new AppError('Failed to update deck statistics', 500);
     }
-  }
+  };
 
   /**
    * Update card count for a deck
    * @param {string} deckId - Deck ID
    * @param {Object} cardCount - Card count object
    */
-  async updateCardCount(deckId, cardCount) {
+  updateCardCount = async (deckId, cardCount) => {
     try {
-      await this.collection.doc(deckId).update({
-        cardCount,
-        updatedAt: new Date()
-      });
-    }
-    catch (error) {
+      await this.collection.doc(deckId)
+        .update({
+          cardCount,
+          updatedAt: new Date()
+        });
+    } catch (error) {
       logger.error('Error updating deck card count:', error);
       throw new AppError('Failed to update card count', 500);
     }
-  }
+  };
 
   /**
    * Increment purchase count
    * @param {string} deckId - Deck ID
    */
-  async incrementPurchases(deckId) {
+  incrementPurchases = async deckId => {
     try {
       const deck = await this.findById(deckId);
       if (!deck) {
@@ -212,26 +208,25 @@ class DeckRepository {
       statistics.purchases = (statistics.purchases || 0) + 1;
 
       await this.updateStatistics(deckId, statistics);
-    }
-    catch (error) {
+    } catch (error) {
       logger.error('Error incrementing purchases:', error);
       throw new AppError('Failed to update purchase count', 500);
     }
-  }
+  };
 
   /**
    * Delete deck
    * @param {string} deckId - Deck ID
    */
-  async delete(deckId) {
+  delete = async deckId => {
     try {
-      await this.collection.doc(deckId).delete();
-    }
-    catch (error) {
+      await this.collection.doc(deckId)
+        .delete();
+    } catch (error) {
       logger.error('Error deleting deck:', error);
       throw new AppError('Failed to delete deck', 500);
     }
-  }
+  };
 }
 
 module.exports = DeckRepository;

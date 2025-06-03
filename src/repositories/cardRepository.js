@@ -12,7 +12,7 @@ class CardRepository {
    * @param {Object} cardData - Card data
    * @returns {Object} Created card with ID
    */
-  async create(cardData) {
+  create = async cardData => {
     try {
       const docRef = await this.collection.add({
         ...cardData,
@@ -26,14 +26,14 @@ class CardRepository {
       logger.error('Error creating card:', error);
       throw new AppError('Failed to create card', 500);
     }
-  }
+  };
 
   /**
    * Find card by ID
    * @param {string} cardId - Card ID
    * @returns {Object|null} Card object or null
    */
-  async findById(cardId) {
+  findById = async cardId => {
     try {
       const doc = await this.collection.doc(cardId).get();
 
@@ -50,7 +50,7 @@ class CardRepository {
       logger.error('Error finding card by ID:', error);
       throw new AppError('Failed to retrieve card', 500);
     }
-  }
+  };
 
   /**
    * Find cards by deck ID
@@ -58,7 +58,7 @@ class CardRepository {
    * @param {Object} filters - Additional filters
    * @returns {Array} Array of cards
    */
-  async findByDeckId(deckId, filters = {}) {
+  findByDeckId = async (deckId, filters = {}) => {
     try {
       let query = this.collection.where('deckIds', 'array-contains', deckId);
 
@@ -86,7 +86,7 @@ class CardRepository {
       logger.error('Error finding cards by deck ID:', error);
       throw new AppError('Failed to retrieve cards', 500);
     }
-  }
+  };
 
   /**
    * Find cards by multiple deck IDs
@@ -94,7 +94,7 @@ class CardRepository {
    * @param {Object} filters - Additional filters
    * @returns {Array} Array of cards
    */
-  async findByDeckIds(deckIds, filters = {}) {
+  findByDeckIds = async (deckIds, filters = {}) => {
     if (!deckIds || deckIds.length === 0) {
       return [];
     }
@@ -118,14 +118,14 @@ class CardRepository {
       logger.error('Error finding cards by deck IDs:', error);
       throw new AppError('Failed to retrieve cards', 500);
     }
-  }
+  };
 
   /**
    * Find cards by filters
    * @param {Object} filters - Query filters
    * @returns {Array} Array of cards
    */
-  async findByFilters(filters = {}) {
+  findByFilters = async (filters = {}) => {
     try {
       let query = this.collection;
 
@@ -161,14 +161,14 @@ class CardRepository {
       logger.error('Error finding cards by filters:', error);
       throw new AppError('Failed to retrieve cards', 500);
     }
-  }
+  };
 
   /**
    * Find unassigned cards (not in any deck)
    * @param {Object} filters - Query filters
    * @returns {Array} Array of cards
    */
-  async findUnassignedCards(filters = {}) {
+  findUnassignedCards = async (filters = {}) => {
     try {
       let query = this.collection.where('deckIds', '==', []);
 
@@ -187,7 +187,7 @@ class CardRepository {
       logger.error('Error finding unassigned cards:', error);
       throw new AppError('Failed to retrieve unassigned cards', 500);
     }
-  }
+  };
 
   /**
    * Update card
@@ -195,7 +195,7 @@ class CardRepository {
    * @param {Object} updateData - Update data
    * @returns {Object} Updated card
    */
-  async update(cardId, updateData) {
+  update = async (cardId, updateData) => {
     try {
       await this.collection.doc(cardId).update({
         ...updateData,
@@ -208,14 +208,14 @@ class CardRepository {
       logger.error('Error updating card:', error);
       throw new AppError('Failed to update card', 500);
     }
-  }
+  };
 
   /**
    * Add card to deck
    * @param {string} cardId - Card ID
    * @param {string} deckId - Deck ID
    */
-  async addToDeck(cardId, deckId) {
+  addToDeck = async (cardId, deckId) => {
     try {
       const card = await this.findById(cardId);
       if (!card) {
@@ -232,14 +232,14 @@ class CardRepository {
       logger.error('Error adding card to deck:', error);
       throw new AppError('Failed to add card to deck', 500);
     }
-  }
+  };
 
   /**
    * Remove card from deck
    * @param {string} cardId - Card ID
    * @param {string} deckId - Deck ID
    */
-  async removeFromDeck(cardId, deckId) {
+  removeFromDeck = async (cardId, deckId) => {
     try {
       const card = await this.findById(cardId);
       if (!card) {
@@ -257,14 +257,14 @@ class CardRepository {
       logger.error('Error removing card from deck:', error);
       throw new AppError('Failed to remove card from deck', 500);
     }
-  }
+  };
 
   /**
    * Update card statistics
    * @param {string} cardId - Card ID
    * @param {Object} statistics - Statistics to update
    */
-  async updateStatistics(cardId, statistics) {
+  updateStatistics = async (cardId, statistics) => {
     try {
       await this.collection.doc(cardId).update({
         statistics,
@@ -275,14 +275,14 @@ class CardRepository {
       logger.error('Error updating card statistics:', error);
       throw new AppError('Failed to update card statistics', 500);
     }
-  }
+  };
 
   /**
    * Increment language usage
    * @param {string} cardId - Card ID
    * @param {string} language - Language code
    */
-  async incrementLanguageUsage(cardId, language) {
+  incrementLanguageUsage = async (cardId, language) => {
     try {
       const card = await this.findById(cardId);
       if (!card) {
@@ -302,14 +302,14 @@ class CardRepository {
       logger.error('Error incrementing language usage:', error);
       throw new AppError('Failed to update language usage', 500);
     }
-  }
+  };
 
   /**
    * Bulk create cards
    * @param {Array} cardsData - Array of card data
    * @returns {Array} Created cards
    */
-  async bulkCreate(cardsData) {
+  bulkCreate = async cardsData => {
     try {
       const batch = db.batch();
       const cardRefs = [];
@@ -341,13 +341,13 @@ class CardRepository {
       logger.error('Error bulk creating cards:', error);
       throw new AppError('Failed to create cards', 500);
     }
-  }
+  };
 
   /**
    * Delete card
    * @param {string} cardId - Card ID
    */
-  async delete(cardId) {
+  delete = async cardId => {
     try {
       await this.collection.doc(cardId).delete();
     }
@@ -355,7 +355,7 @@ class CardRepository {
       logger.error('Error deleting card:', error);
       throw new AppError('Failed to delete card', 500);
     }
-  }
+  };
 }
 
 module.exports = CardRepository;

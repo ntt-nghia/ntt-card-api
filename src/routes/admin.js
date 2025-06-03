@@ -12,7 +12,7 @@ router.use(authenticateUser);
 router.use(requireAdmin);
 
 // Deck management
-router.get('/decks', adminController.deckService.deckRepository.findAll);
+router.get('/decks', adminController.adminFindAll);
 router.get('/decks/:id', adminController.adminFindById);
 router.post('/decks', adminController.adminCreateDeck);
 router.patch('/decks/:id', adminController.adminUpdateDeck);
