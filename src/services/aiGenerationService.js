@@ -74,7 +74,7 @@ class AIGenerationService {
           batchIndex: i
         });
 
-        generatedCards.alpush(...batchResults);
+        generatedCards.push(...batchResults);
 
         // Rate limiting between batches
         if (i < batchCount - 1) {
@@ -116,7 +116,14 @@ class AIGenerationService {
    * @returns {Array} Generated cards
    */
   async generateCardBatch(batchParams) {
-    const { relationshipType, connectionLevel, count, theta, targetLanguages, batchIndex } = batchParams;
+    const {
+      relationshipType,
+      connectionLevel,
+      count,
+      theta,
+      targetLanguages,
+      batchIndex
+    } = batchParams;
 
     // Select appropriate model based on theta (quality)
     const model = theta >= 0.6 ? this.proModel : this.flashModel;
@@ -143,7 +150,10 @@ class AIGenerationService {
       }
 
       const result = await model.generateContent({
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        contents: [{
+          role: 'user',
+          parts: [{ text: prompt }]
+        }],
         generationConfig
       });
 
@@ -177,17 +187,24 @@ class AIGenerationService {
   }
 
   /**
-   * Build optimized prompt with relationship-specific templates
+   * Build optimized prompt with relationship-specific templates (ENGAGEMENT-FOCUSED)
    * @param {Object} promptParams - Prompt parameters
    * @returns {string} Optimized prompt
    */
   buildOptimizedPrompt(promptParams) {
-    const { relationshipType, connectionLevel, count, theta, targetLanguages, batchIndex } = promptParams;
+    const {
+      relationshipType,
+      connectionLevel,
+      count,
+      theta,
+      targetLanguages,
+      batchIndex
+    } = promptParams;
 
-    // Base prompt template with quality scaling
-    const qualityInstructions = this.getQualityInstructions(theta);
-    const relationshipContext = this.getRelationshipContext(relationshipType);
-    const levelGuidelines = this.getConnectionLevelGuidelines(connectionLevel);
+    // Base prompt template with quality scaling (UPDATED FOR ENGAGEMENT)
+    const qualityInstructions = this.getEngagementFocusedQualityInstructions(theta);
+    const relationshipContext = this.getEngagementFocusedRelationshipContext(relationshipType);
+    const levelGuidelines = this.getEngagementOptimizedLevelGuidelines(connectionLevel);
     const languageInstructions = this.getLanguageInstructions(targetLanguages);
 
     // Anti-duplication instructions
@@ -210,11 +227,28 @@ ${relationshipContext}
 CONNECTION LEVEL: ${connectionLevel}/4
 ${levelGuidelines}
 
+ENGAGEMENT REQUIREMENTS:
+- Every card must create immediate participation opportunity
+- Include random joy elements in ${this.getJoyPercentage(connectionLevel)}% of cards
+- For challenge cards: Must be completable in 5-15 minutes with clear success markers
+- Focus on shared experience over individual reflection
+- Balance vulnerability with playfulness
+
+ACHIEVABILITY CHECKLIST FOR CHALLENGES:
+✓ Can be completed in current setting without special equipment
+✓ Has clear completion criteria
+✓ Includes celebration or appreciation moment
+✓ Scalable difficulty (basic + advanced options)
+✓ Partners work together rather than compete
+
 ${uniquenessInstructions}
 
 ${languageInstructions}
 
-TASK: Generate exactly ${count} unique cards in the following JSON format:
+TASK: Generate exactly ${count} cards optimized for maximum engagement and joy.
+
+CARD TYPE DISTRIBUTION (Engagement-Optimized):
+${this.getEngagementFocusedCardTypeDistribution(count)}
 
 {
   "cards": [
@@ -226,94 +260,183 @@ TASK: Generate exactly ${count} unique cards in the following JSON format:
       "connectionLevel": ${connectionLevel},
       "relationshipTypes": ["${relationshipType}"],
       "tier": "FREE|PREMIUM",
-      "categories": ["category1", "category2"],
-      "contentWarnings": ["warning1"] // if applicable
+      "categories": ["engagement", "joy", "achievable"],
+      "contentWarnings": [],
+      "engagementElements": ["humor"|"celebration"|"surprise"|"play"|"action"]
     }
   ]
 }
 
-Requirements:
-- Each card must be completely unique and engaging
-- Content should be appropriate for the relationship type and level
-- Use natural, conversational language
-- Include diverse card types (${this.getCardTypeDistribution(count)})
-- Ensure cultural sensitivity and inclusivity
+ENGAGEMENT SUCCESS CRITERIA:
+- Cards should create immediate "Yes, let's do this!" response
+- Include elements of surprise, delight, or gentle humor
+- Balance meaningful connection with joyful interaction
+- For Level 4: Make vulnerability feel adventurous rather than heavy
+- All content should strengthen the relationship through positive shared experience
 - Tier assignment: ${theta >= 0.6 ? 'Mix of FREE and PREMIUM with bias toward PREMIUM' : 'Primarily FREE tier'}
 
-Generate now:`;
+Generate now with maximum engagement focus:`;
 
     return prompt;
   }
 
   /**
-   * Get quality-specific generation instructions
+   * Get engagement-focused quality-specific generation instructions
    * @param {number} theta - Quality coefficient (0.1-1.0)
    * @returns {string} Quality instructions
    */
-  getQualityInstructions(theta) {
+  getEngagementFocusedQualityInstructions(theta) {
     if (theta >= 0.8) {
-      return `PREMIUM QUALITY MODE (θ=${theta}):
-- Create highly sophisticated, nuanced content
-- Use advanced psychological insights
-- Include multi-layered questions that evolve during discussion
-- Incorporate cultural awareness and emotional intelligence
-- Generate transformative, memorable experiences`;
-    } else if (theta >= 0.6) {
-      return `HIGH QUALITY MODE (θ=${theta}):
-- Develop thoughtful, engaging content
-- Balance depth with accessibility
-- Include creative and unexpected elements
-- Focus on meaningful connection opportunities`;
-    } else if (theta >= 0.4) {
-      return `STANDARD QUALITY MODE (θ=${theta}):
-- Create clear, engaging content
-- Use proven conversation techniques
-- Balance fun with meaningful interaction
-- Ensure broad appeal and comfort`;
-    } else {
-      return `BASIC QUALITY MODE (θ=${theta}):
-- Generate simple, accessible content
-- Use straightforward language
-- Focus on light, comfortable interactions
-- Prioritize ease of use and broad appeal`;
+      return `ENGAGEMENT-FOCUSED PREMIUM MODE (θ=${theta}):
+- Create immediately compelling, interactive content
+- Include surprising elements that spark instant curiosity
+- Balance depth with playful engagement
+- Add unexpected joy moments (30% of cards should be delightful)
+- For challenges: Design achievable 5-15 minute activities with clear success markers
+- Use "gamified vulnerability" - make deeper sharing feel like play
+- Include celebration and appreciation moments throughout`;
+    }
+    else if (theta >= 0.6) {
+      return `INTERACTIVE HIGH QUALITY MODE (θ=${theta}):
+- Design prompts that create immediate action or response
+- Include lighthearted elements to maintain energy
+- Focus on shared experiences over individual reflection
+- For challenges: Use simple props or no props, 5-10 minute completion
+- Randomly inject humor through playful scenarios (25% joy factor)
+- Balance meaningful sharing with interactive fun`;
+    }
+    else if (theta >= 0.4) {
+      return `ACCESSIBLE ENGAGEMENT MODE (θ=${theta}):
+- Create easy-to-start, fun interactions
+- Use familiar concepts with surprising twists
+- Include celebration and appreciation moments
+- For challenges: Simple, immediately doable activities
+- Light humor and playfulness in 20% of content
+- Focus on positive shared experiences`;
+    }
+    else {
+      return `SIMPLE JOY MODE (θ=${theta}):
+- Generate instantly engaging, easy content
+- Focus on shared fun and light connection
+- Include smile-inducing elements
+- For challenges: 2-5 minute simple activities
+- Prioritize laughter and comfort over depth
+- Create immediate positive interactions`;
     }
   }
 
   /**
-   * Get relationship-specific context and guidelines
+   * Get engagement-focused relationship-specific context and guidelines
    * @param {string} relationshipType - Type of relationship
    * @returns {string} Context instructions
    */
-  getRelationshipContext(relationshipType) {
+  getEngagementFocusedRelationshipContext(relationshipType) {
     const contexts = {
-      friends: `Focus on shared experiences, humor, and deepening existing bonds. Encourage storytelling, shared memories, and discovering new aspects of friendship. Maintain playful energy while allowing for meaningful moments.`,
+      friends: `Focus on playful shared experiences, humor, and joyful bonding. Encourage storytelling that brings laughter, memory games, and discovering fun new aspects of friendship. Maintain high energy while creating meaningful moments through play.
 
-      colleagues: `Maintain professional boundaries while building workplace rapport. Focus on work-life balance, professional goals, communication styles, and team dynamics. Avoid overly personal topics.`,
+ENGAGEMENT STRATEGIES:
+- "Memory lane with laughs" - fun exploration of shared history
+- "Future adventures" - exciting planning and dreaming together
+- "Friendship celebrations" - structured positive reinforcement
+- "Playful challenges" - light competition and teamwork
+- "Surprise discoveries" - finding new quirks about each other`,
 
-      new_couples: `Facilitate discovery and compatibility exploration. Focus on values, life goals, preferences, and getting to know each other. Build emotional intimacy gradually and appropriately.`,
+      colleagues: `Build workplace connections through structured fun while maintaining professional boundaries. Focus on team-building activities, professional growth celebrations, and appropriate personal sharing that enhances collaboration.
 
-      established_couples: `Refresh and deepen long-term relationships. Address relationship growth, shared dreams, intimacy, and reconnection. Include both fun and serious relationship-building content.`,
+ENGAGEMENT STRATEGIES:
+- "Professional wins celebration" - highlighting achievements together
+- "Team building games" - collaborative workplace-appropriate activities
+- "Future vision sharing" - career dreams and workplace goals
+- "Skill appreciation" - recognizing each other's strengths
+- "Work-life balance discoveries" - appropriate personal interests sharing`,
 
-      family: `Bridge generational gaps and strengthen family bonds. Include traditions, heritage, family history, and intergenerational understanding. Respect diverse family structures and dynamics.`
+      new_couples: `Accelerate discovery through playful exploration and joyful compatibility testing. Focus on creating positive shared experiences while learning about each other. Make vulnerability feel like adventure and discovery.
+
+ENGAGEMENT STRATEGIES:
+- "Discovery adventures" - fun ways to learn about each other
+- "Compatibility games" - playful testing of alignment
+- "Dream building" - exciting future planning together
+- "Appreciation celebrations" - highlighting what attracts you to each other
+- "Story sharing" - engaging background and experience exchange`,
+
+      established_couples: `Refresh and energize long-term relationships through playful rediscovery and shared joy. Focus on breaking routines, celebrating your journey, and creating new positive memories together.
+
+ENGAGEMENT STRATEGIES:
+- "Relationship archaeology" - fun exploration of shared history
+- "Future adventures" - exciting planning and dreaming together
+- "Appreciation celebrations" - structured positive reinforcement
+- "Playful challenges" - light competition and teamwork
+- "Surprise discoveries" - finding new aspects of familiar partner
+
+JOY INJECTION METHODS:
+- Memory lane with humor: "Remember when you thought..."
+- Future silliness: "In 20 years, we'll probably..."
+- Role reversal games: "If you were me for a day..."
+- Appreciation comedy: "The weirdest thing I love about you..."
+- Dream scenarios: "If we won the lottery tomorrow..."`,
+
+      family: `Bridge generational gaps through fun family activities and joyful tradition building. Focus on creating positive shared experiences that honor different perspectives while building stronger family bonds.
+
+ENGAGEMENT STRATEGIES:
+- "Generation bridge games" - fun ways to share different perspectives
+- "Family tradition building" - creating new positive rituals together
+- "Heritage celebration" - joyful exploration of family history
+- "Appreciation circles" - structured family gratitude practices
+- "Future family visioning" - exciting planning for family adventures`
     };
 
-    return contexts[relationshipType] || 'Create appropriate relationship-building content.';
+    return contexts[relationshipType] || 'Create appropriate relationship-building content with high engagement focus.';
   }
 
   /**
-   * Get connection level specific guidelines
+   * Get engagement-optimized connection level specific guidelines
    * @param {number} level - Connection level (1-4)
    * @returns {string} Level guidelines
    */
-  getConnectionLevelGuidelines(level) {
+  getEngagementOptimizedLevelGuidelines(level) {
     const guidelines = {
-      1: 'SURFACE LEVEL: Light, fun, low-vulnerability topics. Focus on preferences, opinions, and external observations. Keep it comfortable and engaging.',
-      2: 'PERSONAL LEVEL: Share experiences, background stories, and personal preferences. Include moderate self-revelation and meaningful but safe topics.',
-      3: 'VULNERABLE LEVEL: Encourage deeper emotional sharing. Include fears, dreams, challenges, and meaningful life experiences. Appropriate vulnerability for the relationship.',
-      4: 'DEEP LEVEL: Core values, life philosophy, and transformative experiences. Create space for profound sharing and meaningful connection.'
+      1: `SURFACE LEVEL - IMMEDIATE FUN: Light, entertaining, high-energy topics. Focus on preferences, opinions, and fun observations. Create instant engagement and laughter. Include games, quick challenges, and playful interactions.`,
+
+      2: `PERSONAL LEVEL - ENGAGING SHARING: Share experiences and background through storytelling games and interactive activities. Include moderate self-revelation wrapped in fun formats. Make personal sharing feel like adventure and discovery.`,
+
+      3: `VULNERABLE LEVEL - ADVENTURE IN DEPTH: Encourage deeper emotional sharing through structured, supportive activities. Include fears, dreams, and challenges presented as growth adventures. Make vulnerability feel safe and rewarding through celebration and appreciation.`,
+
+      4: `DEEP LEVEL - ENGAGED VULNERABILITY: Core values and life philosophy explored through exciting, adventure-like sharing. Make profound connection feel like a thrilling journey of discovery. Balance serious moments with joy, celebration, and appreciation. Focus on "wow moments" that create lasting positive memories.
+
+ENGAGEMENT TECHNIQUES:
+- Future visioning that feels like planning an adventure
+- Values exploration through fun "would you rather" scenarios  
+- Life philosophy through storytelling games
+- Transformation celebration rather than problem analysis`
     };
 
-    return guidelines[level] || 'Create appropriate content for the connection level.';
+    return guidelines[level] || 'Create appropriate content for the connection level with maximum engagement focus.';
+  }
+
+  /**
+   * Get joy percentage based on connection level
+   * @param {number} level - Connection level
+   * @returns {number} Joy percentage
+   */
+  getJoyPercentage(level) {
+    const joyPercentages = {
+      1: 50, // Surface level should be very fun
+      2: 40, // Personal level maintains high joy
+      3: 30, // Vulnerable level balances depth with joy
+      4: 25  // Deep level includes joy but allows for profound moments
+    };
+    return joyPercentages[level] || 30;
+  }
+
+  /**
+   * Get engagement-focused card type distribution for the batch
+   * @param {number} count - Number of cards
+   * @returns {string} Distribution description
+   */
+  getEngagementFocusedCardTypeDistribution(count) {
+    if (count <= 3) return '60% questions (with engagement hooks), 40% challenges (immediately doable)';
+    if (count <= 5) return '50% questions (action-oriented), 35% challenges (5-10 min), 15% scenarios (interactive)';
+    return '45% questions (engagement-focused), 30% challenges (achievable), 15% scenarios (interactive), 5% connection (celebration), 5% wild (joy-injection)';
   }
 
   /**
@@ -328,22 +451,12 @@ LANGUAGE: English
 - Use natural, conversational American English
 - Avoid regional slang or highly cultural references
 - Ensure clarity for international English speakers
-- Use inclusive, gender-neutral language where appropriate`;
+- Use inclusive, gender-neutral language where appropriate
+- Include action words and engagement triggers ("Let's...", "Try this...", "Right now...")`;
     }
 
     // Future support for other languages
-    return 'Generate content in the specified target language with cultural appropriateness.';
-  }
-
-  /**
-   * Get card type distribution for the batch
-   * @param {number} count - Number of cards
-   * @returns {string} Distribution description
-   */
-  getCardTypeDistribution(count) {
-    if (count <= 3) return 'primarily questions';
-    if (count <= 5) return '60% questions, 30% challenges, 10% scenarios';
-    return '50% questions, 25% challenges, 15% scenarios, 5% connection, 5% wild';
+    return 'Generate content in the specified target language with cultural appropriateness and engagement focus.';
   }
 
   /**
@@ -460,7 +573,9 @@ LANGUAGE: English
       .replace(/\s+/g, ' ')
       .trim();
 
-    return crypto.createHash('sha256').update(normalized).digest('hex');
+    return crypto.createHash('sha256')
+      .update(normalized)
+      .digest('hex');
   }
 
   /**
@@ -554,7 +669,10 @@ LANGUAGE: English
    * @returns {number} Edit distance
    */
   levenshteinDistance(str1, str2) {
-    const matrix = Array(str2.length + 1).fill(null).map(() => Array(str1.length + 1).fill(null));
+    const matrix = Array(str2.length + 1)
+      .fill(null)
+      .map(() => Array(str1.length + 1)
+        .fill(null));
 
     for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
     for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
@@ -612,7 +730,10 @@ LANGUAGE: English
         cardData.createdAt = new Date();
 
         // Validate card structure
-        const { error, value } = validateCard(cardData);
+        const {
+          error,
+          value
+        } = validateCard(cardData);
         if (error) {
           logger.warn('Generated card validation failed:', error.details[0].message);
           continue;
@@ -656,7 +777,12 @@ LANGUAGE: English
    * @param {Object} request - Generation request
    */
   validateGenerationRequest(request) {
-    const { relationshipType, connectionLevel, count, theta } = request;
+    const {
+      relationshipType,
+      connectionLevel,
+      count,
+      theta
+    } = request;
 
     const validRelationshipTypes = ['friends', 'colleagues', 'new_couples', 'established_couples', 'family'];
     if (!validRelationshipTypes.includes(relationshipType)) {

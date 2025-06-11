@@ -79,6 +79,10 @@ const cardSchema = Joi.object({
     .items(Joi.string())
     .default([]),
 
+  engagementElements: Joi.array()
+    .items(Joi.string())
+    .default([]),
+
   contentWarnings: Joi.array()
     .items(Joi.string())
     .default([]),
