@@ -42,6 +42,7 @@ router.post('/decks/:id/cards', adminController.adminAddCardsToDeck);
 router.delete('/decks/:id/cards', adminController.adminRemoveCardsFromDeck);
 
 // Card management
+router.get('/cards', adminController.adminGetAllCards);
 router.post('/cards', adminController.adminCreateCard);
 router.patch('/cards/:id', adminController.adminUpdateCard);
 router.delete('/cards/:id', adminController.adminDeleteCard);

@@ -1,6 +1,9 @@
 const CardRepository = require('../repositories/cardRepository');
 const DeckRepository = require('../repositories/deckRepository');
-const { validateCard, getCardContent } = require('../models/Card');
+const {
+  validateCard,
+  getCardContent
+} = require('../models/Card');
 const { AppError } = require('../middleware/errorHandler');
 const logger = require('../utils/logger');
 
@@ -11,12 +14,111 @@ class CardService {
   }
 
   /**
+   * Get cards with pagination and filtering for admin
+   * @param {Object} filters - Filter criteria
+   * @param {Object} options - Pagination and sorting options
+   * @returns {Object} Cards with pagination info
+   */
+  getCardsWithPagination = async (filters = {}, options = {}) => {
+    const {
+      limit = 20,
+      offset = 0,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+      language = 'en'
+    } = options;
+
+    try {
+      // Use your existing repository method or create a new one
+      const allCards = await this.cardRepository.findByFilters(filters);
+
+      // Apply search if provided
+      let filteredCards = allCards;
+      if (filters.search) {
+        const searchTerm = filters.search.toLowerCase();
+        filteredCards = allCards.filter(card => {
+          const content = getCardContent(card, language)
+            .toLowerCase();
+          return content.includes(searchTerm) ||
+            (card.type && card.type.toLowerCase()
+              .includes(searchTerm)) ||
+            (card.status && card.status.toLowerCase()
+              .includes(searchTerm));
+        });
+      }
+
+      // Sort cards
+      const sortedCards = filteredCards.sort((a, b) => {
+        let aVal = a[sortBy];
+        let bVal = b[sortBy];
+
+        // Handle date sorting
+        if (sortBy === 'createdAt' || sortBy === 'updatedAt') {
+          aVal = new Date(aVal);
+          bVal = new Date(bVal);
+        }
+
+        if (sortOrder === 'desc') {
+          return bVal > aVal ? 1 : -1;
+        }
+        return aVal > bVal ? 1 : -1;
+      });
+
+      // Apply pagination
+      const paginatedCards = sortedCards.slice(offset, offset + limit);
+
+      // Format cards for response
+      const formattedCards = paginatedCards.map(card =>
+        this.formatCardForAdmin(card, language)
+      );
+
+      return {
+        cards: formattedCards,
+        total: filteredCards.length,
+        hasMore: offset + limit < filteredCards.length
+      };
+
+    } catch (error) {
+      logger.error('Error getting cards with pagination:', error);
+      throw new AppError('Failed to retrieve cards', 500);
+    }
+  };
+
+  /**
+   * Format card for admin response
+   * @param {Object} card - Card object
+   * @param {string} language - Language code
+   * @returns {Object} Formatted card
+   */
+  formatCardForAdmin(card, language = 'en') {
+    return {
+      id: card.id,
+      content: getCardContent(card, language),
+      type: card.type,
+      connectionLevel: card.connectionLevel,
+      relationshipTypes: card.relationshipTypes || [],
+      deckIds: card.deckIds || [],
+      tier: card.tier || 'FREE',
+      theta: card.theta,
+      status: card.status || 'active',
+      languages: card.languages || ['en'],
+      createdBy: card.createdBy,
+      createdAt: card.createdAt,
+      updatedAt: card.updatedAt,
+      statistics: card.statistics
+    };
+  }
+
+  /**
    * Create a new card
    * @param {Object} cardData - Card data
    * @returns {Object} Created card
    */
   async createCard(cardData) {
-    const { error, value } = validateCard(cardData);
+    const {
+      error,
+      value
+    } = validateCard(cardData);
     if (error) {
       logger.error('Card validation error:', error.details);
       throw new AppError(`Validation error: ${error.details[0].message}`, 400);
@@ -141,7 +243,10 @@ class CardService {
     }
 
     // Validate update data
-    const { error, value } = validateCard({ ...card, ...updateData });
+    const {
+      error,
+      value
+    } = validateCard({ ...card, ...updateData });
     if (error) {
       throw new AppError(`Validation error: ${error.details[0].message}`, 400);
     }
@@ -220,7 +325,10 @@ class CardService {
     // Validate all cards
     const validatedCards = [];
     for (const cardData of cardsData) {
-      const { error, value } = validateCard(cardData);
+      const {
+        error,
+        value
+      } = validateCard(cardData);
       if (error) {
         throw new AppError(`Validation error in card: ${error.details[0].message}`, 400);
       }
@@ -244,7 +352,8 @@ class CardService {
     });
 
     await Promise.all(
-      Array.from(affectedDeckIds).map((deckId) => this.updateDeckCardCount(deckId))
+      Array.from(affectedDeckIds)
+        .map((deckId) => this.updateDeckCardCount(deckId))
     );
 
     return cards;

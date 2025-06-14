@@ -763,6 +763,70 @@ class AdminController {
     const minutes = Math.ceil(totalSeconds / 60);
     return `${minutes} minute${minutes > 1 ? 's' : ''}`;
   }
+
+  /**
+   * Get all cards for admin
+   * GET /api/v1/admin/cards
+   */
+  adminGetAllCards = async (req, res, next) => {
+    try {
+      const {
+        relationshipType,
+        connectionLevel,
+        type,
+        status,
+        tier,
+        deckId,
+        language = 'en',
+        search,
+        limit = 20,
+        offset = 0,
+        sortBy = 'createdAt',
+        sortOrder = 'desc'
+      } = req.query;
+
+      const filters = {};
+
+      // Build filters object
+      if (relationshipType) filters.relationshipType = relationshipType;
+      if (connectionLevel) filters.connectionLevel = parseInt(connectionLevel);
+      if (type) filters.type = type;
+      if (status) filters.status = status;
+      if (tier) filters.tier = tier;
+      if (deckId) filters.deckId = deckId;
+      if (search) filters.search = search;
+
+      // Get cards from service
+      const result = await this.cardService.getCardsWithPagination(
+        filters,
+        {
+          limit: parseInt(limit),
+          offset: parseInt(offset),
+          sortBy,
+          sortOrder,
+          language
+        }
+      );
+
+      res.status(200)
+        .json({
+          status: 'success',
+          data: {
+            cards: result.cards,
+            pagination: {
+              total: result.total,
+              limit: parseInt(limit),
+              offset: parseInt(offset),
+              hasMore: result.hasMore
+            }
+          }
+        });
+
+    } catch (error) {
+      logger.error('Failed to get admin cards:', error);
+      next(error);
+    }
+  };
 }
 
 module.exports = new AdminController();
