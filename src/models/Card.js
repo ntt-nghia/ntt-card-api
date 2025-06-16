@@ -149,10 +149,22 @@ const cardSchema = Joi.object({
     .optional(),
 
   // Audit trail
-  createdAt: Joi.date()
-    .default(() => new Date()),
-  updatedAt: Joi.date()
-    .default(() => new Date()),
+  createdAt: Joi.object(
+    {
+      _seconds: Joi.number()
+        .required(),
+      _nanoseconds: Joi.number()
+        .optional()
+    }
+  ),
+  updatedAt: Joi.object(
+    {
+      _seconds: Joi.number()
+        .required(),
+      _nanoseconds: Joi.number()
+        .optional()
+    }
+  ),
 
   // Replacement tracking
   replacedBy: Joi.string()
@@ -161,13 +173,90 @@ const cardSchema = Joi.object({
     .optional()
 });
 
+const cardUpdateSchema = Joi.object({
+  // Core content (multilingual support)
+  content: Joi.object({
+    en: Joi.string()
+      .min(10)
+      .max(500)
+      .required(),
+    vn: Joi.string()
+      .min(10)
+      .max(500)
+      .optional() // Future Vietnamese support
+  })
+    .required(),
+
+  // Card classification
+  type: Joi.string()
+    .valid('question', 'challenge', 'scenario', 'connection', 'wild')
+    .required(),
+
+  connectionLevel: Joi.number()
+    .integer()
+    .min(1)
+    .max(4)
+    .required(),
+
+  relationshipTypes: Joi.array()
+    .items(Joi.string()
+      .valid('friends', 'colleagues', 'new_couples', 'established_couples', 'family'))
+    .min(1)
+    .required(),
+
+  // Monetization tier
+  tier: Joi.string()
+    .valid('FREE', 'PREMIUM')
+    .default('FREE'),
+
+  // AI Generation metadata
+  theta: Joi.number()
+    .min(0.1)
+    .max(1.0)
+    .default(0.5),
+
+  aiGenerated: Joi.boolean()
+    .default(false),
+
+  // Content organization
+  categories: Joi.array()
+    .items(Joi.string())
+    .default([]),
+
+  engagementElements: Joi.array()
+    .items(Joi.string())
+    .default([]),
+
+  contentWarnings: Joi.array()
+    .items(Joi.string())
+    .default([]),
+
+  id: Joi.string()
+    .required(),
+
+  // Lifecycle management
+  status: Joi.string()
+    .valid('active', 'review', 'archived', 'draft')
+    .default('review'), // AI-generated cards start in review
+
+  updatedAt: Joi.object(
+    {
+      _seconds: Joi.number()
+        .required(),
+      _nanoseconds: Joi.number()
+        .optional()
+    }
+  )
+}).unknown();
+
 /**
  * Validate card data
  * @param {Object} cardData - Card data to validate
+ * @param isUpdate - choose schema to validate
  * @returns {Object} Validation result
  */
-function validateCard(cardData) {
-  return cardSchema.validate(cardData, { abortEarly: false });
+function validateCard(cardData, isUpdate = false) {
+  return (isUpdate ? cardUpdateSchema : cardSchema).validate(cardData, { abortEarly: false });
 }
 
 /**

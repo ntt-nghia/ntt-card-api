@@ -1,6 +1,7 @@
 const { db } = require('../config/firebase');
 const { AppError } = require('../middleware/errorHandler');
 const logger = require('../utils/logger');
+const { Timestamp } = require('@google-cloud/firestore/build/src');
 
 class CardRepository {
   constructor() {
@@ -199,7 +200,7 @@ class CardRepository {
     try {
       await this.collection.doc(cardId).update({
         ...updateData,
-        updatedAt: new Date()
+        updatedAt: Timestamp.now()
       });
 
       return await this.findById(cardId);

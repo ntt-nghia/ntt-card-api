@@ -246,7 +246,7 @@ class CardService {
     const {
       error,
       value
-    } = validateCard({ ...card, ...updateData });
+    } = validateCard({ ...card, ...updateData }, true);
     if (error) {
       throw new AppError(`Validation error: ${error.details[0].message}`, 400);
     }
